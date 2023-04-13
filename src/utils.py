@@ -1,21 +1,28 @@
+import copy
 import os
 import logging
+import sys
+from collections import OrderedDict
 
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.init as init
+import torchvision
+import yaml
 
 from torch.utils.data import Dataset, TensorDataset, ConcatDataset
 from torchvision import datasets, transforms
 
-logger = logging.getLogger(__name__)
-
-
 #######################
 # TensorBaord setting #
 #######################
-def launch_tensor_board(log_path, port, host):
+from tqdm import tqdm
+
+from src.client import Client
+
+
+def launch_tensor_board(log_path, port):
     """Function for initiating TensorBoard.
     
     Args:
@@ -23,60 +30,97 @@ def launch_tensor_board(log_path, port, host):
         port: Port number used for launching TensorBoard.
         host: Address used for launching TensorBoard.
     """
-    os.system(f"tensorboard --logdir={log_path} --port={port} --host={host}")
+    os.system(f"tensorboard --logdir={log_path} --port={port}")
     return True
 
-#########################
-# Weight initialization #
-#########################
-def init_weights(model, init_type, init_gain):
-    """Function for initializing network weights.
-    
-    Args:
-        model: A torch.nn instance to be initialized.
-        init_type: Name of an initialization method (normal | xavier | kaiming | orthogonal).
-        init_gain: Scaling factor for (normal | xavier | orthogonal).
-    
-    Reference:
-        https://github.com/DS3Lab/forest-prediction/blob/master/pix2pix/models/networks.py
-    """
-    def init_func(m):
-        classname = m.__class__.__name__
-        if hasattr(m, 'weight') and (classname.find('Conv') != -1 or classname.find('Linear') != -1):
-            if init_type == 'normal':
-                init.normal_(m.weight.data, 0.0, init_gain)
-            elif init_type == 'xavier':
-                init.xavier_normal_(m.weight.data, gain=init_gain)
-            elif init_type == 'kaiming':
-                init.kaiming_normal_(m.weight.data, a=0, mode='fan_in')
-            else:
-                raise NotImplementedError(f'[ERROR] ...initialization method [{init_type}] is not implemented!')
-            if hasattr(m, 'bias') and m.bias is not None:
-                init.constant_(m.bias.data, 0.0)
-        
-        elif classname.find('BatchNorm2d') != -1 or classname.find('InstanceNorm2d') != -1:
-            init.normal_(m.weight.data, 1.0, init_gain)
-            init.constant_(m.bias.data, 0.0)   
-    model.apply(init_func)
 
-def init_net(model, init_type, init_gain, gpu_ids):
-    """Function for initializing network weights.
-    
-    Args:
-        model: A torch.nn.Module to be initialized
-        init_type: Name of an initialization method (normal | xavier | kaiming | orthogonal)l
-        init_gain: Scaling factor for (normal | xavier | orthogonal).
-        gpu_ids: List or int indicating which GPU(s) the network runs on. (e.g., [0, 1, 2], 0)
-    
-    Returns:
-        An initialized torch.nn.Module instance.
-    """
-    if len(gpu_ids) > 0:
-        assert(torch.cuda.is_available())
-        model.to(gpu_ids[0])
-        model = nn.DataParallel(model, gpu_ids)
-    init_weights(model, init_type, init_gain)
-    return model
+def create_datasets(data_path, dataset_name, num_clients, iid=True):
+    """Split the whole dataset in IID or non-IID manner for distributing to clients."""
+    local_datasets = []
+    dataset_name = dataset_name.upper()
+    transform = torchvision.transforms.ToTensor()
+
+    # prepare raw training & test datasets
+    training_dataset = torchvision.datasets.__dict__[dataset_name](
+        root=data_path,
+        train=True,
+        download=True,
+    )
+    test_dataset = torchvision.datasets.__dict__[dataset_name](
+        root=data_path,
+        train=False,
+        download=True,
+        transform=transform
+    )
+
+    # split dataset according to iid flag
+    if iid:
+        # shuffle data
+        shuffled_indices = torch.randperm(len(training_dataset))
+        training_inputs = training_dataset.data[shuffled_indices]
+        training_labels = torch.Tensor(training_dataset.targets)[shuffled_indices]
+
+        # partition data into num_clients
+        split_size = len(training_dataset) // num_clients
+        split_datasets = list(
+            zip(
+                torch.split(torch.Tensor(training_inputs), split_size),
+                torch.split(torch.Tensor(training_labels), split_size)
+            )
+        )
+        local_datasets = [
+            CustomTensorDataset(local_dataset, transform=transform)
+            for local_dataset in split_datasets
+            ]
+    else:
+        # sort data by labels
+        print()
+
+    return local_datasets, test_dataset
+
+
+def transmit_model(model, select_client):
+    """Send the updated global model to selected/all clients."""
+    client_id = []
+    for client in tqdm(select_client, file=sys.stdout):
+        client.model = copy.deepcopy(model)
+        client_id.append(client.id)
+    message = f"successfully transmitted models to clients{client_id}!"
+    print(message)
+
+
+def update_selected_clients(select_client):
+    """Call "client_update" function of each selected client."""
+    selected_total_size = 0
+    for client in tqdm(select_client, file=sys.stdout):
+        client.client_update()
+        selected_total_size += len(client)
+    message = f"clients are selected and updated (with total sample size: {str(selected_total_size)})!"
+    print(message)
+
+    return selected_total_size
+
+
+def average_model(select_client, selected_total_size):
+    """Average the updated and transmitted parameters from each selected client."""
+
+    mixing_coefficients = [len(client) / selected_total_size for client in select_client]
+    global_model = select_client[0].model
+    averaged_weights = OrderedDict()
+    for it, client in tqdm(enumerate(select_client), file=sys.stdout):
+        local_weights = client.model.state_dict()
+        for key in client.model.state_dict().keys():
+            if it == 0:
+                averaged_weights[key] = mixing_coefficients[it] * local_weights[key]
+            else:
+                averaged_weights[key] += mixing_coefficients[it] * local_weights[key]
+
+    global_model.load_state_dict(averaged_weights)
+
+    message = f"updated weights are successfully averaged!"
+    print(message)
+    return global_model
+
 
 #################
 # Dataset split #
@@ -97,100 +141,3 @@ class CustomTensorDataset(Dataset):
 
     def __len__(self):
         return self.tensors[0].size(0)
-
-def create_datasets(data_path, dataset_name, num_clients, num_shards, iid):
-    """Split the whole dataset in IID or non-IID manner for distributing to clients."""
-    dataset_name = dataset_name.upper()
-    # get dataset from torchvision.datasets if exists
-    if hasattr(torchvision.datasets, dataset_name):
-        # set transformation differently per dataset
-        if dataset_name in ["CIFAR10"]:
-            transform = torchvision.transforms.Compose(
-                [
-                    torchvision.transforms.ToTensor(),
-                    torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-                ]
-            )
-        elif dataset_name in ["MNIST"]:
-            transform = torchvision.transforms.ToTensor()
-        
-        # prepare raw training & test datasets
-        training_dataset = torchvision.datasets.__dict__[dataset_name](
-            root=data_path,
-            train=True,
-            download=True,
-            transform=transform
-        )
-        test_dataset = torchvision.datasets.__dict__[dataset_name](
-            root=data_path,
-            train=False,
-            download=True,
-            transform=transform
-        )
-    else:
-        # dataset not found exception
-        error_message = f"...dataset \"{dataset_name}\" is not supported or cannot be found in TorchVision Datasets!"
-        raise AttributeError(error_message)
-
-    # unsqueeze channel dimension for grayscale image datasets
-    if training_dataset.data.ndim == 3: # convert to NxHxW -> NxHxWx1
-        training_dataset.data.unsqueeze_(3)
-    num_categories = np.unique(training_dataset.targets).shape[0]
-    
-    if "ndarray" not in str(type(training_dataset.data)):
-        training_dataset.data = np.asarray(training_dataset.data)
-    if "list" not in str(type(training_dataset.targets)):
-        training_dataset.targets = training_dataset.targets.tolist()
-    
-    # split dataset according to iid flag
-    if iid:
-        # shuffle data
-        shuffled_indices = torch.randperm(len(training_dataset))
-        training_inputs = training_dataset.data[shuffled_indices]
-        training_labels = torch.Tensor(training_dataset.targets)[shuffled_indices]
-
-        # partition data into num_clients
-        split_size = len(training_dataset) // num_clients
-        split_datasets = list(
-            zip(
-                torch.split(torch.Tensor(training_inputs), split_size),
-                torch.split(torch.Tensor(training_labels), split_size)
-            )
-        )
-
-        # finalize bunches of local datasets
-        local_datasets = [
-            CustomTensorDataset(local_dataset, transform=transform)
-            for local_dataset in split_datasets
-            ]
-    else:
-        # sort data by labels
-        sorted_indices = torch.argsort(torch.Tensor(training_dataset.targets))
-        training_inputs = training_dataset.data[sorted_indices]
-        training_labels = torch.Tensor(training_dataset.targets)[sorted_indices]
-
-        # partition data into shards first
-        shard_size = len(training_dataset) // num_shards #300
-        shard_inputs = list(torch.split(torch.Tensor(training_inputs), shard_size))
-        shard_labels = list(torch.split(torch.Tensor(training_labels), shard_size))
-
-        # sort the list to conveniently assign samples to each clients from at least two classes
-        shard_inputs_sorted, shard_labels_sorted = [], []
-        for i in range(num_shards // num_categories):
-            for j in range(0, ((num_shards // num_categories) * num_categories), (num_shards // num_categories)):
-                shard_inputs_sorted.append(shard_inputs[i + j])
-                shard_labels_sorted.append(shard_labels[i + j])
-                
-        # finalize local datasets by assigning shards to each client
-        shards_per_clients = num_shards // num_clients
-        local_datasets = [
-            CustomTensorDataset(
-                (
-                    torch.cat(shard_inputs_sorted[i:i + shards_per_clients]),
-                    torch.cat(shard_labels_sorted[i:i + shards_per_clients]).long()
-                ),
-                transform=transform
-            ) 
-            for i in range(0, len(shard_inputs_sorted), shards_per_clients)
-        ]
-    return local_datasets, test_dataset
