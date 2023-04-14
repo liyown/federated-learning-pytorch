@@ -22,6 +22,9 @@ def create_clients(local_datasets):
 
     message = f"successfully created all {str(len(local_datasets))} clients! every client has {len(clients[0])} images"
     print(message)
+    with open('../config.yaml') as c:
+        configs = yaml.load(c, Loader=yaml.FullLoader)
+        if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"]+message)
 
     return clients
 

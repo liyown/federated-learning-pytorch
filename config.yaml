@@ -1,6 +1,9 @@
 global_config:
   seed: 5959
   device: "cuda"
+#  False True
+  record: True
+  record_id: "1 "
 
 data_config:
   data_path: "../data/"

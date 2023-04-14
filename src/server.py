@@ -19,6 +19,10 @@ if __name__ == "__main__":
         configs = yaml.load(c, Loader=yaml.FullLoader)
 
     global_round = 0
+    # 日志记录
+    logging.basicConfig(filename="../run.log", level=logging.INFO,
+                        format='%(asctime)s %(levelname)s %(message)s')
+    # tensorboard
     writer = SummaryWriter(log_dir=configs["log_config"]["log_path"], filename_suffix="FL")
     tb_thread = threading.Thread(
         target=launch_tensor_board,
@@ -103,8 +107,23 @@ if __name__ == "__main__":
             r
         )
 
+        if configs["global_config"]["record"]:
+            writer.add_scalars(
+                'Loss',
+                {
+                    f"[{dataset_name}]_{models.__class__.__name__} ,IID_{iid}": test_loss},
+                r
+            )
+            writer.add_scalars(
+
+                'Accuracy',
+                {
+                    f"[{dataset_name}]_{models.__class__.__name__}, IID_{iid}": test_accuracy},
+                r
+            )
         message = f"[Round: {str(r).zfill(4)}] Evaluate global model's performance...!\
             \n\t[Server] ...finished evaluation!\
             \n\t=> Loss: {test_loss:.4f}\
             \n\t=> Accuracy: {100. * test_accuracy:.2f}%\n"
         print(message)
+        if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"] + f"Loss: {test_loss:.4f} Accuracy: {100. * test_accuracy:.2f}")
