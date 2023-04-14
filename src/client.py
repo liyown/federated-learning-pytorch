@@ -20,7 +20,7 @@ def create_clients(local_datasets):
         client = Client(client_id=k, local_data=dataset)
         clients.append(client)
 
-    message = f"successfully created all {str(len(local_datasets))} clients! every client has {len(clients[0])} images"
+    message = f"successfully created all {str(len(local_datasets))} clients! every client has {[len(client) for client in clients]} images"
     print(message)
     with open('../config.yaml') as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)

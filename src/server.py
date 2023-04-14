@@ -1,23 +1,21 @@
 import threading
 import time
-
+import logging
 import numpy as np
 import torch
-import torchvision
 import yaml
-from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from tqdm.auto import tqdm
 
 from src.client import create_clients
 from src.models import MnistCNN, Cifar10CNN
-from src.utils import create_datasets, transmit_model, update_selected_clients, average_model, launch_tensor_board
+from src.utils import create_datasets, transmit_model, update_selected_clients, average_model, launch_tensor_board, \
+    init_net
 
 if __name__ == "__main__":
     with open('../config.yaml') as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)
-
+    # 全局参数
     global_round = 0
     # 日志记录
     logging.basicConfig(filename="../run.log", level=logging.INFO,
@@ -28,11 +26,8 @@ if __name__ == "__main__":
         target=launch_tensor_board,
         args=(configs["log_config"]["log_path"], configs["log_config"]["tb_port"])
     ).start()
-    time.sleep(3.0)
 
-    # resnet18 = torchvision.models.resnet18()
-    # resnet18.maxpool = nn.Sequential()
-    # resnet18.fc[0] = nn.Linear(512, 10)
+    # 修改模型的地方
     models = Cifar10CNN()
     torch.manual_seed(configs["global_config"]["seed"])
     models = init_net(models, configs["init_config"]["init_type"], configs["init_config"]["init_gain"])
@@ -48,6 +43,7 @@ if __name__ == "__main__":
 
     # assign dataset to each client
     clients = create_clients(local_datasets)
+
     # send the model skeleton to all clients
     transmit_model(models, clients)
 
@@ -58,17 +54,17 @@ if __name__ == "__main__":
     """Execute the whole process of the federated learning."""
     results = {"loss": [], "accuracy": []}
     for r in range(configs["fed_config"]["round"]):
-
+        # 随机采样，获取客户端id
         num_sampled_clients = max(int(configs["fed_config"]["fraction"] * configs["fed_config"]["num_clients"]), 1)
         sampled_client_indices = sorted(np.random.choice(a=[i for i in range(configs["fed_config"]["num_clients"])],
                                                          size=num_sampled_clients, replace=False).tolist())
-
+        # 获取随机采样的客户端
         select_client = [clients[idx] for idx in sampled_client_indices]
-
+        # 将全局模型传递给选中的客户端
         transmit_model(models, select_client)
-
+        # 更新选中的客户端，并且返回选中客户端所有的数据量
         selected_total_size = update_selected_clients(select_client)
-
+        # 进行模型聚合
         models = average_model(select_client, selected_total_size)
 
         models.eval()
@@ -93,20 +89,6 @@ if __name__ == "__main__":
 
         dataset_name = configs["data_config"]["dataset_name"]
         iid = configs["data_config"]["iid"]
-        writer.add_scalars(
-            'Loss',
-            {
-                f"[{dataset_name}]_{models.__class__.__name__} ,IID_{iid}": test_loss},
-            r
-        )
-        writer.add_scalars(
-
-            'Accuracy',
-            {
-                f"[{dataset_name}]_{models.__class__.__name__}, IID_{iid}": test_accuracy},
-            r
-        )
-
         if configs["global_config"]["record"]:
             writer.add_scalars(
                 'Loss',

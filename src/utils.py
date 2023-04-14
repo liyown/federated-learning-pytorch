@@ -20,6 +20,7 @@ from torchvision import datasets, transforms
 from tqdm import tqdm
 
 from src.client import Client
+from src.customclass import CustomTensorDataset
 
 
 def launch_tensor_board(log_path, port):
@@ -71,10 +72,10 @@ def create_datasets(data_path, dataset_name, num_clients, iid=True):
         local_datasets = [
             CustomTensorDataset(local_dataset, transform=transform)
             for local_dataset in split_datasets
-            ]
+        ]
     else:
-        # sort data by labels
-        print()
+        # TODO 添加no-iid代码
+        pass
 
     return local_datasets, test_dataset
 
@@ -125,25 +126,7 @@ def average_model(select_client, selected_total_size):
     return global_model
 
 
-#################
-# Dataset split #
-#################
-class CustomTensorDataset(Dataset):
-    """TensorDataset with support of transforms."""
-    def __init__(self, tensors, transform=None):
-        assert all(tensors[0].size(0) == tensor.size(0) for tensor in tensors)
-        self.tensors = tensors
-        self.transform = transform
-
-    def __getitem__(self, index):
-        x = self.tensors[0][index]
-        y = self.tensors[1][index]
-        if self.transform:
-            x = self.transform(x.numpy().astype(np.uint8))
-        return x, y
-
-    def __len__(self):
-        return self.tensors[0].size(0)def init_net(model, init_type, init_gain):
+def init_net(model, init_type, init_gain):
     """Function for initializing network weights.
 
     Args:

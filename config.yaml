@@ -31,7 +31,7 @@ init_config:
   init_gain: 1.0
 
 log_config:
+#  uselessfile
   log_path: "../log/"
   log_name:  "FL.log"
   tb_port: 5252
-  tb_host: "localhost"
