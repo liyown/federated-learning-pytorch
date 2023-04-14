@@ -93,7 +93,7 @@ for i in range(epoch):
     print("整体测试集上的正确率: {}".format(total_accuracy/test_data_size))
     total_test_step = total_test_step + 1
     TrainTime = time.time() - BeginTrainTime
-    with open("../result/local_train.txt", mode='a') as txt:
+    with open("../result/local_train.txt", mode='a',encoding="utf-8") as txt:
         txt.write("communicate round " + str(epoch) + " ")
         txt.write('accuracy:' + str(float(total_accuracy/test_data_size)) + " ")
         txt.write('loss: ' + str(float(total_test_loss)) + " ")

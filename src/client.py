@@ -22,7 +22,7 @@ def create_clients(local_datasets):
 
     message = f"successfully created all {str(len(local_datasets))} clients! every client has {[len(client) for client in clients]} images"
     print(message)
-    with open('../config.yaml') as c:
+    with open('../config.yaml', encoding="utf-8") as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)
         if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"]+message)
 
@@ -37,7 +37,7 @@ class Client(object):
         self.data = local_data
         self.__model = None
 
-        with open('../config.yaml') as c:
+        with open('../config.yaml', encoding="utf-8") as c:
             configs = yaml.load(c, Loader=yaml.FullLoader)
         self.dataloader = DataLoader(self.data, batch_size=configs["client_config"]["batch_size"], shuffle=True)
         self.local_epoch = configs["client_config"]["num_local_epochs"]

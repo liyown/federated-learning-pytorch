@@ -1,6 +1,7 @@
 import copy
 import os
 import logging
+import random
 import sys
 from collections import OrderedDict
 
@@ -54,6 +55,11 @@ def create_datasets(data_path, dataset_name, num_clients, iid=True):
         transform=transform
     )
 
+    if "ndarray" not in str(type(training_dataset.data)):
+        training_dataset.data = np.asarray(training_dataset.data)
+    if "list" not in str(type(training_dataset.targets)):
+        training_dataset.targets = training_dataset.targets.tolist()
+
     # split dataset according to iid flag
     if iid:
         # shuffle data
@@ -88,7 +94,7 @@ def transmit_model(model, select_client):
         client_id.append(client.id)
     message = f"successfully transmitted models to clients{client_id}!"
     print(message)
-    with open('../config.yaml') as c:
+    with open('../config.yaml', encoding="utf-8") as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)
         if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"] + message)
 
@@ -159,3 +165,11 @@ def init_net(model, init_type, init_gain):
     return model
 
 
+def seed_torch(seed=1029):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)  # 为了禁止hash随机化，使得实验可复现
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True

@@ -1,37 +1,29 @@
 global_config:
   seed: 5959
-  device: "cuda"
-#  False True
-  record: True
-  record_id: "1 "
-
+  device: cuda
+  record: true
+  record_id: 'MNIST第二次实验 '
 data_config:
-  data_path: "../data/"
-  dataset_name: "CIFAR10"
-  iid: True
-
+  data_path: ../data/
+  dataset_name: MNIST
+  iid: true
 client_config:
-  device: "cuda"
+  model: MnistCNN
+  device: cuda
   batch_size: 16
   num_local_epochs: 5
   criterion: torch.nn.CrossEntropyLoss
   optimizer: torch.optim.Adam
-  client_config:
   optim_config:
     lr: 0.001
-#    momentum: 0.9
-
 fed_config:
   fraction: 0.1
   num_clients: 100
-  round: 500
-
+  round: 100
 init_config:
-  init_type: "xavier"
+  init_type: xavier
   init_gain: 1.0
-
 log_config:
-#  uselessfile
-  log_path: "../log/"
-  log_name:  "FL.log"
+  log_path: ../log/
+  log_name: FL.log
   tb_port: 5252

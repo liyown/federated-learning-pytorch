@@ -10,10 +10,10 @@ from torch.utils.tensorboard import SummaryWriter
 from src.client import create_clients
 from src.models import MnistCNN, Cifar10CNN
 from src.utils import create_datasets, transmit_model, update_selected_clients, average_model, launch_tensor_board, \
-    init_net
+    init_net, seed_torch
 
 if __name__ == "__main__":
-    with open('../config.yaml') as c:
+    with open('../config.yaml', encoding="utf-8") as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)
     # 全局参数
     global_round = 0
@@ -21,6 +21,7 @@ if __name__ == "__main__":
     logging.basicConfig(filename="../run.log", level=logging.INFO,
                         format='%(asctime)s %(levelname)s %(message)s')
     # tensorboard
+    print(configs["log_config"]["log_path"])
     writer = SummaryWriter(log_dir=configs["log_config"]["log_path"], filename_suffix="FL")
     tb_thread = threading.Thread(
         target=launch_tensor_board,
@@ -28,8 +29,12 @@ if __name__ == "__main__":
     ).start()
 
     # 修改模型的地方
-    models = Cifar10CNN()
-    torch.manual_seed(configs["global_config"]["seed"])
+    if configs["client_config"]["model"] == "Cifar10CNN":
+        models = Cifar10CNN()
+    elif configs["client_config"]["model"] == "MnistCNN":
+        models = MnistCNN()
+
+    seed_torch()
     models = init_net(models, configs["init_config"]["init_type"], configs["init_config"]["init_gain"])
 
     device = configs["client_config"]["device"]
@@ -89,21 +94,22 @@ if __name__ == "__main__":
 
         dataset_name = configs["data_config"]["dataset_name"]
         iid = configs["data_config"]["iid"]
+        record_id = configs["global_config"]["record_id"]
         if configs["global_config"]["record"]:
             writer.add_scalars(
                 'Loss',
                 {
-                    f"[{dataset_name}]_{models.__class__.__name__} ,IID_{iid}": test_loss},
+                    record_id+f"{dataset_name}_{models.__class__.__name__} ,IID_{iid}": test_loss},
                 r
             )
             writer.add_scalars(
 
                 'Accuracy',
                 {
-                    f"[{dataset_name}]_{models.__class__.__name__}, IID_{iid}": test_accuracy},
+                    record_id+f"{dataset_name}]_{models.__class__.__name__}, IID_{iid}": test_accuracy},
                 r
             )
-        message = f"[Round: {str(r).zfill(4)}] Evaluate global model's performance...!\
+        message = record_id+f"[Round: {str(r).zfill(4)}] Evaluate global model's performance...!\
             \n\t[Server] ...finished evaluation!\
             \n\t=> Loss: {test_loss:.4f}\
             \n\t=> Accuracy: {100. * test_accuracy:.2f}%\n"
