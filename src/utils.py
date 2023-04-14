@@ -87,6 +87,9 @@ def transmit_model(model, select_client):
         client_id.append(client.id)
     message = f"successfully transmitted models to clients{client_id}!"
     print(message)
+    with open('../config.yaml') as c:
+        configs = yaml.load(c, Loader=yaml.FullLoader)
+        if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"] + message)
 
 
 def update_selected_clients(select_client):
@@ -140,4 +143,36 @@ class CustomTensorDataset(Dataset):
         return x, y
 
     def __len__(self):
-        return self.tensors[0].size(0)
+        return self.tensors[0].size(0)def init_net(model, init_type, init_gain):
+    """Function for initializing network weights.
+
+    Args:
+        model: A torch.nn.Module to be initialized
+        init_type: Name of an initialization method (normal | xavier | kaiming | orthogonal)l
+        init_gain: Scaling factor for (normal | xavier | orthogonal).
+    Returns:
+        An initialized torch.nn.Module instance.
+    """
+
+    def init_func(m):
+        class_name = m.__class__.__name__
+        if hasattr(m, 'weight') and (class_name.find('Conv') != -1 or class_name.find('Linear') != -1):
+            if init_type == 'normal':
+                init.normal_(m.weight.data, 0.0, init_gain)
+            elif init_type == 'xavier':
+                init.xavier_normal_(m.weight.data, gain=init_gain)
+            elif init_type == 'kaiming':
+                init.kaiming_normal_(m.weight.data, a=0, mode='fan_in')
+            else:
+                raise NotImplementedError(f'[ERROR] ...initialization method [{init_type}] is not implemented!')
+            if hasattr(m, 'bias') and m.bias is not None:
+                init.constant_(m.bias.data, 0.0)
+
+        elif class_name.find('BatchNorm2d') != -1 or class_name.find('InstanceNorm2d') != -1:
+            init.normal_(m.weight.data, 1.0, init_gain)
+            init.constant_(m.bias.data, 0.0)
+
+    model.apply(init_func)
+    return model
+
+

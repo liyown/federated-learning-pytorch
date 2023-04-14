@@ -30,6 +30,9 @@ if __name__ == "__main__":
     # resnet18.maxpool = nn.Sequential()
     # resnet18.fc[0] = nn.Linear(512, 10)
     models = Cifar10CNN()
+    torch.manual_seed(configs["global_config"]["seed"])
+    models = init_net(models, configs["init_config"]["init_type"], configs["init_config"]["init_gain"])
+
     device = configs["client_config"]["device"]
 
     # split local dataset for each client
