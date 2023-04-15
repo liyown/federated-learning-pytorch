@@ -1,5 +1,4 @@
 import threading
-import time
 import logging
 import numpy as np
 import torch
@@ -7,7 +6,7 @@ import yaml
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from src.client import create_clients
+from fedavg.client import create_clients
 from src.models import MnistCNN, Cifar10CNN
 from src.utils import create_datasets, transmit_model, update_selected_clients, average_model, launch_tensor_board, \
     init_net, seed_torch
@@ -45,7 +44,6 @@ if __name__ == "__main__":
                                                    configs["data_config"]["dataset_name"],
                                                    configs["fed_config"]["num_clients"],
                                                    configs["data_config"]["iid"])
-
     # assign dataset to each client
     clients = create_clients(local_datasets)
 
@@ -53,7 +51,7 @@ if __name__ == "__main__":
     transmit_model(models, clients)
 
     # prepare hold-out dataset for evaluation
-    test_data = test_dataset
+    test_data = test_dataset[[1,2,3]:[2,3,4]]
     test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
     """Execute the whole process of the federated learning."""

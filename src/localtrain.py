@@ -40,7 +40,7 @@ loss_fn = nn.CrossEntropyLoss()
 # 优化器
 
 learning_rate = 1e-3
-optimizer = torch.optim.Adam(tudui.parameters(), lr=learning_rate)
+optimizer = torch.optim.Adam(list(tudui.parameters()), lr=learning_rate)
 
 # 设置训练网络的一些参数
 # 记录训练的次数
@@ -71,7 +71,7 @@ for i in range(epoch):
         optimizer.step()
 
         total_train_step = total_train_step + 1
-        if total_train_step % 1000 == 0:
+        if total_train_step % 100 == 0:
             print("训练次数：{}, Loss: {}".format(total_train_step, loss.item()))
 
     # 测试步骤开始

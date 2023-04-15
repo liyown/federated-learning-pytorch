@@ -7,20 +7,15 @@ from collections import OrderedDict
 
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.init as init
 import torchvision
 import yaml
-
-from torch.utils.data import Dataset, TensorDataset, ConcatDataset
-from torchvision import datasets, transforms
 
 #######################
 # TensorBaord setting #
 #######################
 from tqdm import tqdm
 
-from src.client import Client
 from src.customclass import CustomTensorDataset
 
 
