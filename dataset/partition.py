@@ -26,6 +26,7 @@ class DataPartitioner(ABC):
 
     Details and tutorials of different data partition and datasets, please check `Federated Dataset and DataPartitioner <https://fedlab.readthedocs.io/en/master/tutorials/dataset_partition.html>`_.
     """
+
     def __init__(self):
         pass
 
@@ -237,7 +238,7 @@ class BasicPartitioner(DataPartitioner):
         self.dir_alpha = dir_alpha
         self.verbose = verbose
         self.min_require_size = min_require_size
-            
+
         # self.rng = np.random.default_rng(seed)  # rng currently not supports randint
         np.random.seed(seed)
 

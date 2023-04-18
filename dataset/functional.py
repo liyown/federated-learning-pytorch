@@ -6,6 +6,7 @@
 
 #     http://www.apache.org/licenses/LICENSE-2.0
 
+import warnings
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +16,6 @@ from collections import Counter
 
 import numpy as np
 import pandas as pd
-import warnings
 
 
 def split_indices(num_cumsum, rand_perm):
@@ -391,6 +391,7 @@ def samples_num_count(client_dict, num_clients):
                                        columns=['client', 'num_samples']).set_index('client')
     return client_sample_count
 
+
 def noniid_slicing(dataset, num_clients, num_shards):
     """Slice a dataset for non-IID.
     
@@ -460,6 +461,7 @@ def random_slicing(dataset, num_clients):
             np.random.choice(all_idxs, num_items, replace=False))
         all_idxs = list(set(all_idxs) - set(dict_users[i]))
     return dict_users
+
 
 def partition_report(targets,
                      data_indices,

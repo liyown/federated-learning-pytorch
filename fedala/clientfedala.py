@@ -1,12 +1,9 @@
 import gc
-import pickle
 import logging
 import sys
 
 import torch
-import torch.nn as nn
 import yaml
-
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -27,7 +24,7 @@ def create_clients(local_datasets):
     print(message)
     with open('../config.yaml', encoding="utf-8") as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)
-        if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"]+message)
+        if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"] + message)
 
     return clients
 

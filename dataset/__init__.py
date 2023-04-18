@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .partition import DataPartitioner, BasicPartitioner, VisionPartitioner
+from .partition import AdultPartitioner, RCV1Partitioner, CovtypePartitioner
 from .partition import CIFAR10Partitioner, CIFAR100Partitioner, FMNISTPartitioner, MNISTPartitioner, \
     SVHNPartitioner
+from .partition import DataPartitioner, BasicPartitioner, VisionPartitioner
 from .partition import FCUBEPartitioner
-from .partition import AdultPartitioner, RCV1Partitioner, CovtypePartitioner

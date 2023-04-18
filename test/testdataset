@@ -10,4 +10,3 @@ print(len(datalo))
 for image, label in datalo:
     print(image.size(), end=" ")
     print(label)
-

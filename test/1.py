@@ -1,4 +1,4 @@
-#encoding = utf-8
+# encoding = utf-8
 # 创建数据
 import numpy as np
 from matplotlib import pyplot as plt
@@ -11,7 +11,7 @@ y3 = np.array([3, 2, 1, 4, 5])
 # 绘制堆积图
 plt.bar(x, y1, label='A')
 plt.bar(x, y2, bottom=y1, label='B')
-plt.bar(x, y3, bottom=y1+y2, label='C')
+plt.bar(x, y3, bottom=y1 + y2, label='C')
 
 # 添加图例和标签
 plt.legend()

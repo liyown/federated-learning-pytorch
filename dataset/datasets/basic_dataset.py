@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from torch.utils.data import Dataset
 import os
 
-from PIL import Image
 import numpy as np
-
+from PIL import Image
+from torch.utils.data import Dataset
 
 
 class BaseDataset(Dataset):
@@ -51,7 +50,7 @@ class Subset(Dataset):
 
         if not isinstance(dataset.targets, np.ndarray):
             dataset.targets = np.array(dataset.targets)
-            
+
         self.targets = dataset.targets[indices].tolist()
 
         self.transform = transform
@@ -78,6 +77,7 @@ class Subset(Dataset):
     def __len__(self):
         return len(self.targets)
 
+
 class CIFARSubset(Subset):
     """For data subset with different augmentation for different client.
 
@@ -87,6 +87,7 @@ class CIFARSubset(Subset):
         transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version.
         target_transform (callable, optional): A function/transform that takes in the target and transforms it.
     """
+
     def __init__(self,
                  dataset,
                  indices,

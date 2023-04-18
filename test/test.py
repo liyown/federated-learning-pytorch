@@ -1,11 +1,8 @@
 import os
 
-import torchvision
-import seaborn as sns
-
-
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+import torchvision
 
 from dataset import CIFAR10Partitioner
 from dataset.functional import partition_report
@@ -48,7 +45,6 @@ plt.xlabel('sample num')
 plt.savefig(f"./cifar10_hetero_dir_0.3_100clients.png", dpi=400)
 
 clt_sample_num_df = hetero_dir_part.client_sample_count
-
 
 # sns.histplot(data=clt_sample_num_df,
 #              x="num_samples",

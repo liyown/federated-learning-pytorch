@@ -15,12 +15,11 @@
 import os
 
 import torch
-from torch.utils.data import DataLoader
 import torchvision
-from torchvision import transforms
+from torch.utils.data import DataLoader
 
 from .basic_dataset import FedDataset, CIFARSubset
-from ..partition import CIFAR10Partitioner, CIFAR100Partitioner, MNISTPartitioner
+from ..partition import CIFAR10Partitioner, CIFAR100Partitioner
 
 
 class PartitionCIFAR(FedDataset):
@@ -70,7 +69,6 @@ class PartitionCIFAR(FedDataset):
         self.transform = transform
         self.targt_transform = target_transform
 
-
         if preprocess:
             self.preprocess(balance=balance,
                             partition=partition,
@@ -107,27 +105,27 @@ class PartitionCIFAR(FedDataset):
                                                     train=True,
                                                     download=self.download)
             self.partitioner = CIFAR10Partitioner(trainset.targets,
-                                             self.num_clients,
-                                             balance=balance,
-                                             partition=partition,
-                                             unbalance_sgm=unbalance_sgm,
-                                             num_shards=num_shards,
-                                             dir_alpha=dir_alpha,
-                                             verbose=verbose,
-                                             seed=seed)
+                                                  self.num_clients,
+                                                  balance=balance,
+                                                  partition=partition,
+                                                  unbalance_sgm=unbalance_sgm,
+                                                  num_shards=num_shards,
+                                                  dir_alpha=dir_alpha,
+                                                  verbose=verbose,
+                                                  seed=seed)
         elif self.dataname == 'cifar100':
             trainset = torchvision.datasets.CIFAR100(root=self.root,
                                                      train=True,
                                                      download=self.download)
             self.partitioner = CIFAR100Partitioner(trainset.targets,
-                                              self.num_clients,
-                                              balance=balance,
-                                              partition=partition,
-                                              unbalance_sgm=unbalance_sgm,
-                                              num_shards=num_shards,
-                                              dir_alpha=dir_alpha,
-                                              verbose=verbose,
-                                              seed=seed)
+                                                   self.num_clients,
+                                                   balance=balance,
+                                                   partition=partition,
+                                                   unbalance_sgm=unbalance_sgm,
+                                                   num_shards=num_shards,
+                                                   dir_alpha=dir_alpha,
+                                                   verbose=verbose,
+                                                   seed=seed)
         else:
             raise ValueError(
                 f"'dataname'={self.dataname} currently is not supported. Only 'cifar10', and 'cifar100' are supported."
@@ -160,7 +158,8 @@ class PartitionCIFAR(FedDataset):
             dataset = torch.load(
                 os.path.join(self.path, type, "data{}.pkl".format(cid)))
         elif type == "test":
-            dataset = torchvision.datasets.CIFAR10(root=self.root, train=False, download=self.download, transform=self.transform)
+            dataset = torchvision.datasets.CIFAR10(root=self.root, train=False, download=self.download,
+                                                   transform=self.transform)
         else:
             pass
             # TODO 验证集

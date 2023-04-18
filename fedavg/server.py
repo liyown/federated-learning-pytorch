@@ -1,19 +1,16 @@
 import json
-import threading
 import logging
-import time
 
 import numpy as np
 import torch
 import torchvision.transforms
 import yaml
-from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from dataset.datasets.partitioned_cifar import PartitionCIFAR
 from fedavg.client import create_clients
 from model.models import MnistCNN, Cifar10CNN
-from utils.utils import launch_tensor_board, seed_torch, init_net, transmit_model, update_selected_clients, \
+from utils.utils import seed_torch, init_net, transmit_model, update_selected_clients, \
     average_model
 
 if __name__ == "__main__":

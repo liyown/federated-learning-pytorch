@@ -6,7 +6,6 @@ import time
 import torch
 import torchvision
 import yaml
-
 # 准备数据集
 from torch import nn
 from torch.utils.data import DataLoader

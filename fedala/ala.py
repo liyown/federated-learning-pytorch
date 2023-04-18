@@ -1,13 +1,11 @@
+import copy
 import sys
+from typing import List, Tuple
 
 import numpy as np
 import torch
 import torch.nn as nn
-import copy
-import random
 from torch.utils.data import DataLoader
-from typing import List, Tuple
-
 from tqdm import tqdm
 
 

@@ -1,6 +1,6 @@
 import json
-import threading
 import logging
+import threading
 import time
 
 import numpy as np
@@ -12,24 +12,26 @@ from torch.utils.tensorboard import SummaryWriter
 from fedala.ala import update_selected_clients_weights
 from fedala.clientfedala import create_clients
 from model.models import MnistCNN, Cifar10CNN
-from src.utils import create_datasets, transmit_model, update_selected_clients, average_model, launch_tensor_board, \
+from utils.utils import transmit_model, update_selected_clients, average_model, launch_tensor_board, \
     init_net, seed_torch
 
 if __name__ == "__main__":
     with open('../config.yaml', encoding="utf-8") as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)
 
-    print("\n\nid:{}dataset_name:{}--model:{}--optimizer:{}--lr:{}--num_clients:{}--fraction:{}--num_local_epochs:{}--batch_size:{}--record:{}\n\n".format(configs["global_config"]["record_id"],
-                                                                                               configs["data_config"]["dataset_name"],
-                                                                                               configs["client_config"]["model"],
-                                                                                               configs["client_config"]["optimizer"],
-                                                                                               configs["client_config"]["optim_config"]["lr"],
-                                                                                               configs["fed_config"]["num_clients"],
-                                                                                               configs["fed_config"]["fraction"],
-                                                                                               configs["client_config"]["num_local_epochs"],
-                                                                                               configs["client_config"]["batch_size"],
-                                                                                               configs["global_config"]["record"]
-                                                                                               ))
+    print(
+        "\n\nid:{}dataset_name:{}--model:{}--optimizer:{}--lr:{}--num_clients:{}--fraction:{}--num_local_epochs:{}--batch_size:{}--record:{}\n\n".format(
+            configs["global_config"]["record_id"],
+            configs["data_config"]["dataset_name"],
+            configs["client_config"]["model"],
+            configs["client_config"]["optimizer"],
+            configs["client_config"]["optim_config"]["lr"],
+            configs["fed_config"]["num_clients"],
+            configs["fed_config"]["fraction"],
+            configs["client_config"]["num_local_epochs"],
+            configs["client_config"]["batch_size"],
+            configs["global_config"]["record"]
+            ))
     # 全局参数
     global_round = 0
     # 日志记录
@@ -117,21 +119,22 @@ if __name__ == "__main__":
             writer.add_scalars(
                 'Loss',
                 {
-                    record_id+f"{dataset_name}_{models.__class__.__name__} ,IID_{iid}": test_loss},
+                    record_id + f"{dataset_name}_{models.__class__.__name__} ,IID_{iid}": test_loss},
                 r
             )
             writer.add_scalars(
 
                 'Accuracy',
                 {
-                    record_id+f"{dataset_name}]_{models.__class__.__name__}, IID_{iid}": test_accuracy},
+                    record_id + f"{dataset_name}]_{models.__class__.__name__}, IID_{iid}": test_accuracy},
                 r
             )
-        message = record_id+f"[Round: {str(r).zfill(4)}] Evaluate global model's performance...!\
+        message = record_id + f"[Round: {str(r).zfill(4)}] Evaluate global model's performance...!\
             \n\t[Server] ...finished evaluation!\
             \n\t=> Loss: {test_loss:.4f}\
             \n\t=> Accuracy: {100. * test_accuracy:.2f}%\n"
         print(message)
-        if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"] + f"Loss: {test_loss:.4f} Accuracy: {100. * test_accuracy:.2f}")
+        if configs["global_config"]["record"]: logging.info(
+            configs["global_config"]["record_id"] + f"Loss: {test_loss:.4f} Accuracy: {100. * test_accuracy:.2f}")
     with open("../result/cifar10_fedala.json", encoding="utf-8", mode="w") as f:
         json.dump(results, f)

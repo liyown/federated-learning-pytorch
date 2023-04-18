@@ -1,20 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="GROUP_BY_SEVERITY" value="true" />
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64432cb5-e60b-4ac5-b104-6586dd51daf1" name="变更" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/datasets/basic_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/datasets/basic_dataset.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dataset/datasets/partitioned_cifar.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/datasets/partitioned_cifar.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/testdataset" beforeDir="false" afterPath="$PROJECT_DIR$/test/testdataset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/datasets/partitioned_mnist.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/datasets/partitioned_mnist.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/functional.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/functional.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/partition.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/partition.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fedala/ala.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedala/ala.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fedala/clientfedala.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedala/clientfedala.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fedala/serverfedala.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedala/serverfedala.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fedavg/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedavg/client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fedavg/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedavg/server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/log/Accuracy_Cifarala1 CIFAR10]_Cifar10CNN, IID_True/events.out.tfevents.1681733667.liyown.9036.2FL" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/log/Loss_Cifarala1 CIFAR10_Cifar10CNN ,IID_True/events.out.tfevents.1681733667.liyown.9036.1FL" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/log/events.out.tfevents.1681733554.liyown.9036.0FL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/DenseNet.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/DenseNet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/GoogleNet.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/GoogleNet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/LeNet.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/LeNet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/ResNet.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/ResNet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/ResNet_1.1.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/ResNet_1.1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/VGG.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/VGG.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/WideResNet.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/WideResNet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/run.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/1.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/localtrain.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/localtrain.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/testdataset" beforeDir="false" afterPath="$PROJECT_DIR$/test/testdataset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -35,6 +54,9 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectId" id="2MPBUUHpWQuPzEAmhhSnDHqyRjo" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -46,6 +68,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "last_opened_file_path": "D:/gitee/python/Federated-Averaging-PyTorch/test",
+    "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "debugger.dataViews.python.type.renderers"
   }
 }]]></component>
@@ -211,17 +234,17 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/fedavg/client.py</url>
-          <line>73</line>
+          <line>68</line>
           <option name="timeStamp" value="7" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/fedala/serverfedala.py</url>
-          <line>66</line>
+          <line>68</line>
           <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/fedala/ala.py</url>
-          <line>147</line>
+          <line>145</line>
           <option name="timeStamp" value="24" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -236,18 +259,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/dataset/datasets/basic_dataset.py</url>
-          <line>68</line>
+          <line>67</line>
           <option name="timeStamp" value="44" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/test/testdataset</url>
           <line>9</line>
           <option name="timeStamp" value="45" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/fedavg/server.py</url>
-          <line>44</line>
-          <option name="timeStamp" value="47" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

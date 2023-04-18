@@ -1,15 +1,9 @@
 import gc
-import pickle
 import logging
-import sys
 from collections import Counter
 
 import torch
-import torch.nn as nn
 import yaml
-
-from torch.utils.data import DataLoader
-from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +29,8 @@ class Client(object):
         with open('../config.yaml', encoding="utf-8") as c:
             configs = yaml.load(c, Loader=yaml.FullLoader)
 
-        self.dataloader = DataPartition.get_dataloader(cid=self.id, batch_size=configs["client_config"]["batch_size"], type="train")
+        self.dataloader = DataPartition.get_dataloader(cid=self.id, batch_size=configs["client_config"]["batch_size"],
+                                                       type="train")
         self.local_epoch = configs["client_config"]["num_local_epochs"]
         self.criterion = configs["client_config"]["criterion"]
         self.optimizer = configs["client_config"]["optimizer"]
@@ -55,7 +50,7 @@ class Client(object):
 
     def __len__(self):
         """Return a total size of the client's local data."""
-        return len(self.dataloader)*self.dataloader.batch_size
+        return len(self.dataloader) * self.dataloader.batch_size
 
     def data_distibute(self):
         # 统计每个标签的数量

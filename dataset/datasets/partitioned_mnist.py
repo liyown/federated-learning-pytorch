@@ -15,12 +15,11 @@
 import os
 
 import torch
-from torch.utils.data import DataLoader
 import torchvision
-from torchvision import transforms
+from torch.utils.data import DataLoader
 
 from .basic_dataset import FedDataset, Subset
-from ...utils.dataset.partition import CIFAR10Partitioner, CIFAR100Partitioner, MNISTPartitioner
+from ..partition import MNISTPartitioner
 
 
 class PartitionedMNIST(FedDataset):
@@ -41,6 +40,7 @@ class PartitionedMNIST(FedDataset):
         transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version.
         target_transform (callable, optional): A function/transform that takes in the target and transforms it.
     """
+
     def __init__(self,
                  root,
                  path,
@@ -90,15 +90,15 @@ class PartitionedMNIST(FedDataset):
             os.mkdir(os.path.join(self.path, "test"))
 
         trainset = torchvision.datasets.MNIST(root=self.root,
-                                                train=True,
-                                                download=download)
+                                              train=True,
+                                              download=download)
 
         partitioner = MNISTPartitioner(trainset.targets,
-                                        self.num_clients,
-                                        partition=partition,
-                                        dir_alpha=dir_alpha,
-                                        verbose=verbose,
-                                        seed=seed)
+                                       self.num_clients,
+                                       partition=partition,
+                                       dir_alpha=dir_alpha,
+                                       verbose=verbose,
+                                       seed=seed)
 
         # partition
         subsets = {

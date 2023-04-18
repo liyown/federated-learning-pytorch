@@ -1,7 +1,6 @@
 import copy
-import math
-import os
 import logging
+import os
 import random
 import sys
 from collections import OrderedDict
@@ -9,9 +8,7 @@ from collections import OrderedDict
 import numpy as np
 import torch
 import torch.nn.init as init
-import torchvision
 import yaml
-
 from tqdm import tqdm
 
 
@@ -25,7 +22,6 @@ def launch_tensor_board(log_path, port):
     """
     os.system(f"tensorboard --logdir={log_path} --port={port}")
     return True
-
 
 
 def transmit_model(model, select_client):
@@ -116,22 +112,21 @@ def seed_torch(seed=1029):
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
-
-def draw(PartitionDataset):
-    PartitionDataset
-    csv_file = "./cifar10_hetero_dir_0.3_100clients.csv"
-
-    partition_report(trainset.targets, hetero_dir_part.client_dict,
-                     class_num=num_classes,
-                     verbose=False, file=csv_file)
-
-    hetero_dir_part_df = pd.read_csv(csv_file, header=1)
-    hetero_dir_part_df = hetero_dir_part_df.set_index('client')
-    col_names = [f"class{i}" for i in range(num_classes)]
-    for col in col_names:
-        hetero_dir_part_df[col] = (hetero_dir_part_df[col] * hetero_dir_part_df['Amount']).astype(int)
-
-    hetero_dir_part_df[col_names].iloc[:10].plot.barh(stacked=True)
-    plt.tight_layout()
-    plt.xlabel('sample num')
-    plt.savefig(f"./cifar10_hetero_dir_0.3_100clients.png", dpi=400)
+# def draw(PartitionDataset):
+#     PartitionDataset
+#     csv_file = "./cifar10_hetero_dir_0.3_100clients.csv"
+#
+#     partition_report(trainset.targets, hetero_dir_part.client_dict,
+#                      class_num=num_classes,
+#                      verbose=False, file=csv_file)
+#
+#     hetero_dir_part_df = pd.read_csv(csv_file, header=1)
+#     hetero_dir_part_df = hetero_dir_part_df.set_index('client')
+#     col_names = [f"class{i}" for i in range(num_classes)]
+#     for col in col_names:
+#         hetero_dir_part_df[col] = (hetero_dir_part_df[col] * hetero_dir_part_df['Amount']).astype(int)
+#
+#     hetero_dir_part_df[col_names].iloc[:10].plot.barh(stacked=True)
+#     plt.tight_layout()
+#     plt.xlabel('sample num')
+#     plt.savefig(f"./cifar10_hetero_dir_0.3_100clients.png", dpi=400)

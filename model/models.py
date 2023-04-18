@@ -1,6 +1,3 @@
-import numpy as np
-
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -8,9 +5,6 @@ import torch.nn.functional as F
 # Models for federated learning #
 #################################
 # McMahan et al., 2016; 199,210 parameters
-import torchvision
-from torch.nn import Sequential
-from torch.utils.data import Dataset
 
 
 class TwoNN(nn.Module):
@@ -30,6 +24,7 @@ class TwoNN(nn.Module):
         x = self.activation(self.fc2(x))
         x = self.fc3(x)
         return x
+
 
 # McMahan et al., 2016; 1,663,370 parameters
 class CNN(nn.Module):
@@ -61,6 +56,7 @@ class CNN(nn.Module):
         x = self.activation(self.fc1(x))
         x = self.fc2(x)
         return x
+
 
 # for CIFAR10
 class CNN2(nn.Module):
@@ -116,7 +112,7 @@ class MnistCNN(nn.Module):
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
         self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=5, stride=1, padding=2)
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        self.fc1 = nn.Linear(7*7*64, 512)
+        self.fc1 = nn.Linear(7 * 7 * 64, 512)
         self.fc2 = nn.Linear(512, 10)
 
     def forward(self, inputs):
@@ -125,10 +121,11 @@ class MnistCNN(nn.Module):
         tensor = self.pool1(tensor)
         tensor = F.relu(self.conv2(tensor))
         tensor = self.pool2(tensor)
-        tensor = tensor.view(-1, 7*7*64)
+        tensor = tensor.view(-1, 7 * 7 * 64)
         tensor = F.relu(self.fc1(tensor))
         tensor = self.fc2(tensor)
         return tensor
+
 
 class Cifar10CNN(nn.Module):
     def __init__(self):
@@ -151,4 +148,3 @@ class Cifar10CNN(nn.Module):
         x = self.dropout(x)
         x = self.fc2(x)
         return x
-
