@@ -5,20 +5,22 @@ import time
 
 import numpy as np
 import torch
+import torchvision.transforms
 import yaml
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
+from dataset.datasets.partitioned_cifar import PartitionCIFAR
 from fedavg.client import create_clients
 from model.models import MnistCNN, Cifar10CNN
-from src.utils import create_datasets, transmit_model, update_selected_clients, average_model, launch_tensor_board, \
-    init_net, seed_torch
+from utils.utils import launch_tensor_board, seed_torch, init_net, transmit_model, update_selected_clients, \
+    average_model
 
 if __name__ == "__main__":
     with open('../config.yaml', encoding="utf-8") as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)
     print(
-        "\n\nid:{}dataset_name:{}--model:{}--optimizer:{}--lr:{}--num_clients:{}--fraction:{}--num_local_epochs:{}--batch_size:{}--record:{}\n\n".format(
+        "\nid:{}dataset_name:{}--model:{}--optimizer:{}--lr:{}--num_clients:{}--fraction:{}--num_local_epochs:{}--batch_size:{}--record:{}\n".format(
             configs["global_config"]["record_id"],
             configs["data_config"]["dataset_name"],
             configs["client_config"]["model"],
@@ -29,18 +31,13 @@ if __name__ == "__main__":
             configs["client_config"]["num_local_epochs"],
             configs["client_config"]["batch_size"],
             configs["global_config"]["record"]
-            ))
+        ))
     # 日志记录
-    logging.basicConfig(filename="../run.log", level=logging.INFO,
-                        format='%(asctime)s %(levelname)s %(message)s')
+    logging.basicConfig(filename="../run.log", level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
     # tensorboard
-    print(configs["log_config"]["log_path"])
     writer = SummaryWriter(log_dir=configs["log_config"]["log_path"], filename_suffix="FL")
-    tb_thread = threading.Thread(
-        target=launch_tensor_board, daemon=True, args=(configs["log_config"]["log_path"], configs["log_config"]["tb_port"])
-    ).start()
-    time.sleep(2)
     # -------------------------------------------有效代码开始———————————————————————————————————————————— #
+    models = None
     # 修改模型的地方
     if configs["client_config"]["model"] == "Cifar10CNN":
         models = Cifar10CNN()
@@ -53,20 +50,23 @@ if __name__ == "__main__":
     models = init_net(models, configs["init_config"]["init_type"], configs["init_config"]["init_gain"])
     device = configs["client_config"]["device"]
 
-    # 返回两个dataset，第一个是一个列表，代表本地数据，第二个是测试数据
-    local_datasets, test_dataset = create_datasets(configs["data_config"]["data_path"],
-                                                   configs["data_config"]["dataset_name"],
-                                                   configs["fed_config"]["num_clients"],
-                                                   configs["data_config"]["iid"])
+    # 创建分割数据集及其类
+    PartitionCifar10 = PartitionCIFAR("../data", "./data", "cifar10",
+                                      configs["fed_config"]["num_clients"],
+                                      download=True, preprocess=True,
+                                      balance=True, partition="iid",
+                                      unbalance_sgm=0, num_shards=None,
+                                      dir_alpha=None, transform=torchvision.transforms.ToTensor(),
+                                      target_transform=None)
 
     # assign dataset to each client
-    clients = create_clients(local_datasets)
+    clients = create_clients(PartitionCifar10)
 
     # send the model skeleton to all clients
     transmit_model(models, clients)
 
     # prepare hold-out dataset for evaluation
-    test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+    test_dataloader = PartitionCifar10.get_dataloader(cid=0, batch_size=64, type="test")
 
     """Execute the whole process of the federated learning."""
     results = {"loss": [], "accuracy": []}
@@ -99,7 +99,7 @@ if __name__ == "__main__":
                 if device == "cuda": torch.cuda.empty_cache()
         models.to("cpu")
         test_loss = test_loss / len(test_dataloader)
-        test_accuracy = correct / len(test_dataset)
+        test_accuracy = correct / (len(test_dataloader) * test_dataloader.batch_size)
 
         results['loss'].append(test_loss)
         results['accuracy'].append(test_accuracy)

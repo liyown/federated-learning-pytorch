@@ -14,29 +14,28 @@ from tqdm import tqdm
 logger = logging.getLogger(__name__)
 
 
-def create_clients(local_datasets):
+def create_clients(DataPartition):
     """Initialize each Client instance."""
     clients = []
-    for k, dataset in enumerate(local_datasets):
-        client = Client(client_id=k, local_data=dataset)
+    for k in range(DataPartition.num_clients):
+        client = Client(client_id=k, DataPartition=DataPartition)
         clients.append(client)
 
-    message = f"successfully created all {str(len(local_datasets))} clients! every client has {[len(client) for client in clients]} images"
+    message = f"successfully created all {DataPartition.num_clients} clients!"
     print(message)
     return clients
 
 
 class Client(object):
 
-    def __init__(self, client_id, local_data):
+    def __init__(self, client_id, DataPartition):
         """Client object is initiated by the center server."""
         self.id = client_id
-        self.data = local_data
         self.__model = None
-
         with open('../config.yaml', encoding="utf-8") as c:
             configs = yaml.load(c, Loader=yaml.FullLoader)
-        self.dataloader = DataLoader(self.data, batch_size=configs["client_config"]["batch_size"], shuffle=True)
+
+        self.dataloader = DataPartition.get_dataloader(cid=self.id, batch_size=configs["client_config"]["batch_size"], type="train")
         self.local_epoch = configs["client_config"]["num_local_epochs"]
         self.criterion = configs["client_config"]["criterion"]
         self.optimizer = configs["client_config"]["optimizer"]
@@ -56,7 +55,7 @@ class Client(object):
 
     def __len__(self):
         """Return a total size of the client's local data."""
-        return len(self.data)
+        return len(self.dataloader)*self.dataloader.batch_size
 
     def data_distibute(self):
         # 统计每个标签的数量

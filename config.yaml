@@ -17,13 +17,13 @@ client_config:
   optim_config:
     lr: 0.001
 fed_config:
-  fraction: 1
+  fraction: 0.1
   num_clients: 20
   round: 100
 init_config:
   init_type: xavier
   init_gain: 1.0
 log_config:
-  log_path: ../log/
-  log_name: FL.log
+  log_path: ../tensorboard/
+  log_name: FL.tensorboard
   tb_port: 5252

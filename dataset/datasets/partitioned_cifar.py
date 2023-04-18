@@ -62,12 +62,14 @@ class PartitionCIFAR(FedDataset):
                  seed=None,
                  transform=None,
                  target_transform=None) -> None:
+        self.partitioner = None
         self.dataname = dataname
         self.root = os.path.expanduser(root)
         self.path = path
         self.num_clients = num_clients
         self.transform = transform
         self.targt_transform = target_transform
+
 
         if preprocess:
             self.preprocess(balance=balance,
@@ -104,7 +106,7 @@ class PartitionCIFAR(FedDataset):
             trainset = torchvision.datasets.CIFAR10(root=self.root,
                                                     train=True,
                                                     download=self.download)
-            partitioner = CIFAR10Partitioner(trainset.targets,
+            self.partitioner = CIFAR10Partitioner(trainset.targets,
                                              self.num_clients,
                                              balance=balance,
                                              partition=partition,
@@ -117,7 +119,7 @@ class PartitionCIFAR(FedDataset):
             trainset = torchvision.datasets.CIFAR100(root=self.root,
                                                      train=True,
                                                      download=self.download)
-            partitioner = CIFAR100Partitioner(trainset.targets,
+            self.partitioner = CIFAR100Partitioner(trainset.targets,
                                               self.num_clients,
                                               balance=balance,
                                               partition=partition,
@@ -133,7 +135,7 @@ class PartitionCIFAR(FedDataset):
 
         subsets = {
             cid: CIFARSubset(trainset,
-                             partitioner.client_dict[cid],
+                             self.partitioner.client_dict[cid],
                              transform=self.transform,
                              target_transform=self.targt_transform)
             for cid in range(self.num_clients)
@@ -153,8 +155,16 @@ class PartitionCIFAR(FedDataset):
         Returns:
             Dataset
         """
-        dataset = torch.load(
-            os.path.join(self.path, type, "data{}.pkl".format(cid)))
+        dataset = None
+        if type == "train":
+            dataset = torch.load(
+                os.path.join(self.path, type, "data{}.pkl".format(cid)))
+        elif type == "test":
+            dataset = torchvision.datasets.CIFAR10(root=self.root, train=False, download=self.download, transform=self.transform)
+        else:
+            pass
+            # TODO 验证集
+
         return dataset
 
     def get_dataloader(self, cid, batch_size=None, type="train"):
@@ -165,7 +175,16 @@ class PartitionCIFAR(FedDataset):
             batch_size (int, optional): batch size in DataLoader.
             type (str, optional): Dataset type, can be ``"train"``, ``"val"`` or ``"test"``. Default as ``"train"``.
         """
-        dataset = self.get_dataset(cid, type)
-        batch_size = len(dataset) if batch_size is None else batch_size
-        data_loader = DataLoader(dataset, batch_size=batch_size)
+        data_loader = None
+        if type == "train":
+            dataset = self.get_dataset(cid, type)
+            batch_size = len(dataset) if batch_size is None else batch_size
+            data_loader = DataLoader(dataset, batch_size=batch_size)
+        elif type == "test":
+            dataset = self.get_dataset(cid, type)
+            data_loader = DataLoader(dataset, batch_size=batch_size)
+        else:
+            pass
+            # TODO 验证集
+
         return data_loader

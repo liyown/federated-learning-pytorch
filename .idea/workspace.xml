@@ -5,33 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64432cb5-e60b-4ac5-b104-6586dd51daf1" name="变更" comment="">
-      <change afterPath="$PROJECT_DIR$/dataset/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/datasets/basic_dataset.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/datasets/partitioned_cifar.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/datasets/partitioned_mnist.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/functional.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/partition.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/testdataset" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/run.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/1.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/datasets/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fedala/ala.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedala/ala.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fedala/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedala/clientfedala.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fedala/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedala/serverfedala.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/datasets/partitioned_cifar.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/datasets/partitioned_cifar.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset/testdataset" beforeDir="false" afterPath="$PROJECT_DIR$/test/testdataset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fedavg/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedavg/client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fedavg/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedavg/server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/customclass.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/localtrain.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/localtrain.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/picture.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/run.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/log/Accuracy_Cifarala1 CIFAR10]_Cifar10CNN, IID_True/events.out.tfevents.1681733667.liyown.9036.2FL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/log/Loss_Cifarala1 CIFAR10_Cifar10CNN ,IID_True/events.out.tfevents.1681733667.liyown.9036.1FL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/log/events.out.tfevents.1681733554.liyown.9036.0FL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,12 +45,13 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "last_opened_file_path": "D:/gitee/python/Federated-Averaging-PyTorch/dataset/datasets",
+    "last_opened_file_path": "D:/gitee/python/Federated-Averaging-PyTorch/test",
     "settings.editor.selected.configurable": "debugger.dataViews.python.type.renderers"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\test" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\dataset\datasets" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\src" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\result" />
@@ -80,7 +65,7 @@
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\result" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.testdataset">
+  <component name="RunManager" selected="Python.server">
     <configuration name="1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Federated-Averaging-PyTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -102,7 +87,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="picture_json" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="server" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Federated-Averaging-PyTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -110,11 +95,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/result" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/fedavg" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/result/picture_json.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/fedavg/server.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -135,7 +120,28 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/dataset/test.py" />
+      <option name="SCRIPT_NAME" value="D:\gitee\python\Federated-Averaging-PyTorch\test\test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="testdataset (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Federated-Averaging-PyTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/testdataset" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -156,7 +162,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/dataset/testdataset" />
+      <option name="SCRIPT_NAME" value="D:\gitee\python\Federated-Averaging-PyTorch\test\testdataset" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -165,31 +171,13 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Doctest partition_report" type="tests" factoryName="Doctests" temporary="true" nameIsGenerated="true">
-      <module name="Federated-Averaging-PyTorch" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/dataset" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/dataset/functional.py" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="partition_report" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_FUNCTION" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.server" />
+        <item itemvalue="Python.testdataset (1)" />
         <item itemvalue="Python.testdataset" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.1" />
-        <item itemvalue="Python 测试.Doctest partition_report" />
-        <item itemvalue="Python.picture_json" />
       </list>
     </recent_temporary>
   </component>
@@ -223,7 +211,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/fedavg/client.py</url>
-          <line>74</line>
+          <line>73</line>
           <option name="timeStamp" value="7" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -242,7 +230,7 @@
           <option name="timeStamp" value="33" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/dataset/test.py</url>
+          <url>file://$PROJECT_DIR$/test/test.py</url>
           <line>36</line>
           <option name="timeStamp" value="43" />
         </line-breakpoint>
@@ -250,6 +238,16 @@
           <url>file://$PROJECT_DIR$/dataset/datasets/basic_dataset.py</url>
           <line>68</line>
           <option name="timeStamp" value="44" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/test/testdataset</url>
+          <line>9</line>
+          <option name="timeStamp" value="45" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/fedavg/server.py</url>
+          <line>44</line>
+          <option name="timeStamp" value="47" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

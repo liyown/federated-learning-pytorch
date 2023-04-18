@@ -19,7 +19,7 @@ def launch_tensor_board(log_path, port):
     """Function for initiating TensorBoard.
     
     Args:
-        log_path: Path where the log is stored.
+        log_path: Path where the tensorboard is stored.
         port: Port number used for launching TensorBoard.
         host: Address used for launching TensorBoard.
     """
@@ -31,7 +31,7 @@ def launch_tensor_board(log_path, port):
 def transmit_model(model, select_client):
     """Send the updated global model to selected/all clients."""
     client_id = []
-    for client in tqdm(select_client, file=sys.stdout):
+    for client in select_client:
         client.model = copy.deepcopy(model)
         client_id.append(client.id)
     message = f"successfully transmitted models to clients{client_id}!"
@@ -115,3 +115,23 @@ def seed_torch(seed=1029):
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
+
+
+def draw(PartitionDataset):
+    PartitionDataset
+    csv_file = "./cifar10_hetero_dir_0.3_100clients.csv"
+
+    partition_report(trainset.targets, hetero_dir_part.client_dict,
+                     class_num=num_classes,
+                     verbose=False, file=csv_file)
+
+    hetero_dir_part_df = pd.read_csv(csv_file, header=1)
+    hetero_dir_part_df = hetero_dir_part_df.set_index('client')
+    col_names = [f"class{i}" for i in range(num_classes)]
+    for col in col_names:
+        hetero_dir_part_df[col] = (hetero_dir_part_df[col] * hetero_dir_part_df['Amount']).astype(int)
+
+    hetero_dir_part_df[col_names].iloc[:10].plot.barh(stacked=True)
+    plt.tight_layout()
+    plt.xlabel('sample num')
+    plt.savefig(f"./cifar10_hetero_dir_0.3_100clients.png", dpi=400)

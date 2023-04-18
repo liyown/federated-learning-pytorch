@@ -30,11 +30,8 @@ hetero_dir_part = CIFAR10Partitioner(trainset.targets,
                                      partition="iid",
                                      seed=seed)
 
-
-trainset = list(trainset)[list(hetero_dir_part.client_dict[0])]
-
-
 csv_file = "./cifar10_hetero_dir_0.3_100clients.csv"
+
 partition_report(trainset.targets, hetero_dir_part.client_dict,
                  class_num=num_classes,
                  verbose=False, file=csv_file)
