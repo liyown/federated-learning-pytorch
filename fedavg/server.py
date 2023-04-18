@@ -1,5 +1,8 @@
+import json
 import threading
 import logging
+import time
+
 import numpy as np
 import torch
 import yaml
@@ -7,15 +10,26 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from fedavg.client import create_clients
-from src.models import MnistCNN, Cifar10CNN
+from model.models import MnistCNN, Cifar10CNN
 from src.utils import create_datasets, transmit_model, update_selected_clients, average_model, launch_tensor_board, \
     init_net, seed_torch
 
 if __name__ == "__main__":
     with open('../config.yaml', encoding="utf-8") as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)
-    # 全局参数
-    global_round = 0
+    print(
+        "\n\nid:{}dataset_name:{}--model:{}--optimizer:{}--lr:{}--num_clients:{}--fraction:{}--num_local_epochs:{}--batch_size:{}--record:{}\n\n".format(
+            configs["global_config"]["record_id"],
+            configs["data_config"]["dataset_name"],
+            configs["client_config"]["model"],
+            configs["client_config"]["optimizer"],
+            configs["client_config"]["optim_config"]["lr"],
+            configs["fed_config"]["num_clients"],
+            configs["fed_config"]["fraction"],
+            configs["client_config"]["num_local_epochs"],
+            configs["client_config"]["batch_size"],
+            configs["global_config"]["record"]
+            ))
     # 日志记录
     logging.basicConfig(filename="../run.log", level=logging.INFO,
                         format='%(asctime)s %(levelname)s %(message)s')
@@ -23,27 +37,28 @@ if __name__ == "__main__":
     print(configs["log_config"]["log_path"])
     writer = SummaryWriter(log_dir=configs["log_config"]["log_path"], filename_suffix="FL")
     tb_thread = threading.Thread(
-        target=launch_tensor_board,
-        args=(configs["log_config"]["log_path"], configs["log_config"]["tb_port"])
+        target=launch_tensor_board, daemon=True, args=(configs["log_config"]["log_path"], configs["log_config"]["tb_port"])
     ).start()
-
+    time.sleep(2)
+    # -------------------------------------------有效代码开始———————————————————————————————————————————— #
     # 修改模型的地方
     if configs["client_config"]["model"] == "Cifar10CNN":
         models = Cifar10CNN()
     elif configs["client_config"]["model"] == "MnistCNN":
         models = MnistCNN()
 
+    # 设置随机种子
     seed_torch()
+    # 初始化模型
     models = init_net(models, configs["init_config"]["init_type"], configs["init_config"]["init_gain"])
-
     device = configs["client_config"]["device"]
 
-    # split local dataset for each client
     # 返回两个dataset，第一个是一个列表，代表本地数据，第二个是测试数据
     local_datasets, test_dataset = create_datasets(configs["data_config"]["data_path"],
                                                    configs["data_config"]["dataset_name"],
                                                    configs["fed_config"]["num_clients"],
                                                    configs["data_config"]["iid"])
+
     # assign dataset to each client
     clients = create_clients(local_datasets)
 
@@ -51,7 +66,6 @@ if __name__ == "__main__":
     transmit_model(models, clients)
 
     # prepare hold-out dataset for evaluation
-    test_data = test_dataset[[1,2,3]:[2,3,4]]
     test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
     """Execute the whole process of the federated learning."""
@@ -85,11 +99,10 @@ if __name__ == "__main__":
                 if device == "cuda": torch.cuda.empty_cache()
         models.to("cpu")
         test_loss = test_loss / len(test_dataloader)
-        test_accuracy = correct / len(test_data)
+        test_accuracy = correct / len(test_dataset)
 
         results['loss'].append(test_loss)
         results['accuracy'].append(test_accuracy)
-
         dataset_name = configs["data_config"]["dataset_name"]
         iid = configs["data_config"]["iid"]
         record_id = configs["global_config"]["record_id"]
@@ -97,19 +110,22 @@ if __name__ == "__main__":
             writer.add_scalars(
                 'Loss',
                 {
-                    record_id+f"{dataset_name}_{models.__class__.__name__} ,IID_{iid}": test_loss},
+                    record_id + f"{dataset_name}_{models.__class__.__name__} ,IID_{iid}": test_loss},
                 r
             )
             writer.add_scalars(
 
                 'Accuracy',
                 {
-                    record_id+f"{dataset_name}]_{models.__class__.__name__}, IID_{iid}": test_accuracy},
+                    record_id + f"{dataset_name}]_{models.__class__.__name__}, IID_{iid}": test_accuracy},
                 r
             )
-        message = record_id+f"[Round: {str(r).zfill(4)}] Evaluate global model's performance...!\
+        message = record_id + f"[Round: {str(r).zfill(4)}] Evaluate global model's performance...!\
             \n\t[Server] ...finished evaluation!\
             \n\t=> Loss: {test_loss:.4f}\
             \n\t=> Accuracy: {100. * test_accuracy:.2f}%\n"
         print(message)
-        if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"] + f"Loss: {test_loss:.4f} Accuracy: {100. * test_accuracy:.2f}")
+        if configs["global_config"]["record"]: logging.info(
+            configs["global_config"]["record_id"] + f"Loss: {test_loss:.4f} Accuracy: {100. * test_accuracy:.2f}")
+    with open("result/cifar10_fedavg_noiid.json", encoding="utf-8", mode="w") as f:
+        json.dump(results, f)

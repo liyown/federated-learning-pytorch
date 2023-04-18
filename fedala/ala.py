@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -5,6 +7,17 @@ import copy
 import random
 from torch.utils.data import DataLoader
 from typing import List, Tuple
+
+from tqdm import tqdm
+
+
+def update_selected_clients_weights(select_client, received_global_model):
+    """Call "weight_update" function of each selected client."""
+    for client in tqdm(select_client, file=sys.stdout):
+        client.weight_update(received_global_model)
+
+    message = f"clients are adaptive_local_aggregation"
+    print(message)
 
 
 class ALA:
@@ -17,7 +30,7 @@ class ALA:
                  layer_idx: int = 0,
                  eta: float = 1.0,
                  device: str = 'cpu',
-                 threshold: float = 0.01,
+                 threshold: float = 0.02,
                  num_pre_loss: int = 10) -> None:
         """
         Initialize ALA module
@@ -62,12 +75,16 @@ class ALA:
         Returns:
             None.
         """
-
+        print(f"start_adaptive_local_aggregation_client_{self.cid}")
+        global_model.to(self.device)
+        local_model.to(self.device)
         # randomly sample partial local training data
-        rand_ratio = self.rand_percent / 100
-        rand_num = int(rand_ratio * len(self.train_data))
-        rand_idx = random.randint(0, len(self.train_data) - rand_num)
-        rand_loader = DataLoader(self.train_data[rand_idx:rand_idx + rand_num], self.batch_size, drop_last=True)
+        # rand_ratio = self.rand_percent / 100
+        # rand_num = int(rand_ratio * len(self.train_data))
+        # rand_idx = random.randint(0, len(self.train_data) - rand_num)
+        # rand_loader = DataLoader(self.train_data[rand_idx:rand_idx + rand_num], self.batch_size, drop_last=True)
+
+        rand_loader = DataLoader(self.train_data, self.batch_size, drop_last=True)
 
         # obtain the references of the parameters
         params_g = list(global_model.parameters())
@@ -75,6 +92,7 @@ class ALA:
 
         # deactivate ALA at the 1st communication iteration
         if torch.sum(params_g[0] - params[0]) == 0:
+            print("deactivate ALA at the 1st communication iteration")
             return
 
         # preserve all the updates in the lower layers
@@ -103,6 +121,7 @@ class ALA:
             self.weights = [torch.ones_like(param.data).to(self.device) for param in params_p]
 
         # initialize the higher layers in the temp local model
+
         for param_t, param, param_g, weight in zip(params_tp, params_p, params_gp,
                                                    self.weights):
             param_t.data = param + (param_g - param) * weight
@@ -116,7 +135,7 @@ class ALA:
                     x[0] = x[0].to(self.device)
                 else:
                     x = x.to(self.device)
-                y = y.to(self.device)
+                y = y.to(self.device).to(torch.int64)
                 optimizer.zero_grad()
                 output = model_t(x)
                 loss_value = self.loss(output, y)  # modify according to the local objective
@@ -125,21 +144,24 @@ class ALA:
                 # update weight in this batch
                 for param_t, param, param_g, weight in zip(params_tp, params_p,
                                                            params_gp, self.weights):
+                    weight_gran = param_t.grad * (param_g - param)
                     weight.data = torch.clamp(
-                        weight - self.eta * (param_t.grad * (param_g - param)), 0, 1)
+                        weight - self.eta * weight_gran, -1, 1)
 
                 # update temp local model in this batch
                 for param_t, param, param_g, weight in zip(params_tp, params_p,
                                                            params_gp, self.weights):
                     param_t.data = param + (param_g - param) * weight
-
+                    # print(weight)
+            print()
+            print(loss_value.item())
             losses.append(loss_value.item())
             cnt += 1
 
             # only train one epoch in the subsequent iterations
             if not self.start_phase:
                 break
-
+            print(np.std(losses[-self.num_pre_loss:]))
             # train the weight until convergence
             if len(losses) > self.num_pre_loss and np.std(losses[-self.num_pre_loss:]) < self.threshold:
                 print('Client:', self.cid, '\tStd:', np.std(losses[-self.num_pre_loss:]),
@@ -151,3 +173,6 @@ class ALA:
         # obtain initialized local model
         for param, param_t in zip(params_p, params_tp):
             param.data = param_t.data.clone()
+
+        global_model.cpu()
+        local_model.cpu()

@@ -20,6 +20,7 @@ def create_clients(local_datasets):
     clients = []
     for k, dataset in tqdm(enumerate(local_datasets), file=sys.stdout):
         client = Client(client_id=k, local_data=dataset)
+        print(client.da)
         clients.append(client)
 
     message = f"successfully created all {str(len(local_datasets))} clients! every client has {[len(client) for client in clients]} images"
@@ -49,8 +50,8 @@ class Client(object):
 
         self.device = configs["client_config"]["device"]
 
-        self.ALA = ALA(self.id, eval(self.criterion)(), list(self.data), batch_size=16,
-                       rand_percent=100, layer_idx=2, eta=1.0, device=self.device)
+        self.ALA = ALA(self.id, eval(self.criterion)(), self.data, batch_size=32,
+                       rand_percent=100, layer_idx=8, eta=1, device=self.device)
 
     @property
     def model(self):
@@ -68,22 +69,8 @@ class Client(object):
 
     def weight_update(self, received_global_model):
         """Update local model using local dataset."""
-        self.model.train()
-        self.model.to(self.device)
-        optimizer = eval(self.optimizer)(self.model.parameters(), **self.optim_config)
-        for e in range(self.local_epoch):
-            for data, labels in self.dataloader:
-                data, labels = data.float().to(self.device), labels.long().to(self.device)
-
-                optimizer.zero_grad()
-                outputs = self.model(data)
-                loss = eval(self.criterion)()(outputs, labels)
-
-                loss.backward()
-                optimizer.step()
-
-                if self.device == "cuda": torch.cuda.empty_cache()
-        self.model.to("cpu")
+        self.ALA.adaptive_local_aggregation(received_global_model, self.model)
+        # self.model.to("cpu")
 
     def client_update(self):
         """Update local model using local dataset."""

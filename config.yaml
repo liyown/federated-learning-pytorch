@@ -2,13 +2,13 @@ global_config:
   seed: 5959
   device: cuda
   record: true
-  record_id: 'MNIST第二次实验 '
+  record_id: 'Cifarala1 '
 data_config:
   data_path: ../data/
-  dataset_name: MNIST
+  dataset_name: CIFAR10
   iid: true
 client_config:
-  model: MnistCNN
+  model: Cifar10CNN
   device: cuda
   batch_size: 16
   num_local_epochs: 5
@@ -17,8 +17,8 @@ client_config:
   optim_config:
     lr: 0.001
 fed_config:
-  fraction: 0.1
-  num_clients: 100
+  fraction: 1
+  num_clients: 20
   round: 100
 init_config:
   init_type: xavier

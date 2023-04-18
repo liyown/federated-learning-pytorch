@@ -130,7 +130,6 @@ class MnistCNN(nn.Module):
         tensor = self.fc2(tensor)
         return tensor
 
-
 class Cifar10CNN(nn.Module):
     def __init__(self):
         super().__init__()

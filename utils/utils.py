@@ -1,4 +1,5 @@
 import copy
+import math
 import os
 import logging
 import random
@@ -11,12 +12,7 @@ import torch.nn.init as init
 import torchvision
 import yaml
 
-#######################
-# TensorBaord setting #
-#######################
 from tqdm import tqdm
-
-from src.customclass import CustomTensorDataset
 
 
 def launch_tensor_board(log_path, port):
@@ -30,55 +26,6 @@ def launch_tensor_board(log_path, port):
     os.system(f"tensorboard --logdir={log_path} --port={port}")
     return True
 
-
-def create_datasets(data_path, dataset_name, num_clients, iid=True):
-    """Split the whole dataset in IID or non-IID manner for distributing to clients."""
-    local_datasets = []
-    dataset_name = dataset_name.upper()
-    transform = torchvision.transforms.ToTensor()
-
-    # prepare raw training & test datasets
-    training_dataset = torchvision.datasets.__dict__[dataset_name](
-        root=data_path,
-        train=True,
-        download=True,
-    )
-    test_dataset = torchvision.datasets.__dict__[dataset_name](
-        root=data_path,
-        train=False,
-        download=True,
-        transform=transform
-    )
-
-    if "ndarray" not in str(type(training_dataset.data)):
-        training_dataset.data = np.asarray(training_dataset.data)
-    if "list" not in str(type(training_dataset.targets)):
-        training_dataset.targets = training_dataset.targets.tolist()
-
-    # split dataset according to iid flag
-    if iid:
-        # shuffle data
-        shuffled_indices = torch.randperm(len(training_dataset))
-        training_inputs = training_dataset.data[shuffled_indices]
-        training_labels = torch.Tensor(training_dataset.targets)[shuffled_indices]
-
-        # partition data into num_clients
-        split_size = len(training_dataset) // num_clients
-        split_datasets = list(
-            zip(
-                torch.split(torch.Tensor(training_inputs), split_size),
-                torch.split(torch.Tensor(training_labels), split_size)
-            )
-        )
-        local_datasets = [
-            CustomTensorDataset(local_dataset, transform=transform)
-            for local_dataset in split_datasets
-        ]
-    else:
-        # TODO 添加no-iid代码
-        pass
-
-    return local_datasets, test_dataset
 
 
 def transmit_model(model, select_client):

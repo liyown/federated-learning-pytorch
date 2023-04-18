@@ -2,6 +2,7 @@ import gc
 import pickle
 import logging
 import sys
+from collections import Counter
 
 import torch
 import torch.nn as nn
@@ -16,16 +17,12 @@ logger = logging.getLogger(__name__)
 def create_clients(local_datasets):
     """Initialize each Client instance."""
     clients = []
-    for k, dataset in tqdm(enumerate(local_datasets), file=sys.stdout):
+    for k, dataset in enumerate(local_datasets):
         client = Client(client_id=k, local_data=dataset)
         clients.append(client)
 
     message = f"successfully created all {str(len(local_datasets))} clients! every client has {[len(client) for client in clients]} images"
     print(message)
-    with open('../config.yaml', encoding="utf-8") as c:
-        configs = yaml.load(c, Loader=yaml.FullLoader)
-        if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"]+message)
-
     return clients
 
 
@@ -60,6 +57,14 @@ class Client(object):
     def __len__(self):
         """Return a total size of the client's local data."""
         return len(self.data)
+
+    def data_distibute(self):
+        # 统计每个标签的数量
+        counter = Counter()
+        for batch in self.dataloader:
+            _, labels = batch
+            counter.update(labels.tolist())
+        return counter
 
     def client_update(self):
         """Update local model using local dataset."""

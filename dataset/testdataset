@@ -1,0 +1,13 @@
+from torchvision import transforms
+
+from dataset.datasets.partitioned_cifar import PartitionCIFAR
+
+transform = transforms.Compose([transforms.ToTensor()])
+cifar10 = PartitionCIFAR("../data", "./data", "cifar10", 10, True, True, transform=transform)
+
+datalo = cifar10.get_dataset(0, "train")
+
+for image, label in datalo:
+    print(image.size(), end=" ")
+    print(label)
+

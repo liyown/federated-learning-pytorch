@@ -1,19 +1,35 @@
+import json
 import threading
 import logging
+import time
+
 import numpy as np
 import torch
 import yaml
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from fedavg.client import create_clients
-from src.models import MnistCNN, Cifar10CNN
+from fedala.ala import update_selected_clients_weights
+from fedala.clientfedala import create_clients
+from model.models import MnistCNN, Cifar10CNN
 from src.utils import create_datasets, transmit_model, update_selected_clients, average_model, launch_tensor_board, \
     init_net, seed_torch
 
 if __name__ == "__main__":
     with open('../config.yaml', encoding="utf-8") as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)
+
+    print("\n\nid:{}dataset_name:{}--model:{}--optimizer:{}--lr:{}--num_clients:{}--fraction:{}--num_local_epochs:{}--batch_size:{}--record:{}\n\n".format(configs["global_config"]["record_id"],
+                                                                                               configs["data_config"]["dataset_name"],
+                                                                                               configs["client_config"]["model"],
+                                                                                               configs["client_config"]["optimizer"],
+                                                                                               configs["client_config"]["optim_config"]["lr"],
+                                                                                               configs["fed_config"]["num_clients"],
+                                                                                               configs["fed_config"]["fraction"],
+                                                                                               configs["client_config"]["num_local_epochs"],
+                                                                                               configs["client_config"]["batch_size"],
+                                                                                               configs["global_config"]["record"]
+                                                                                               ))
     # 全局参数
     global_round = 0
     # 日志记录
@@ -23,9 +39,10 @@ if __name__ == "__main__":
     print(configs["log_config"]["log_path"])
     writer = SummaryWriter(log_dir=configs["log_config"]["log_path"], filename_suffix="FL")
     tb_thread = threading.Thread(
-        target=launch_tensor_board,
+        target=launch_tensor_board, daemon=True,
         args=(configs["log_config"]["log_path"], configs["log_config"]["tb_port"])
     ).start()
+    time.sleep(2)
 
     # 修改模型的地方
     if configs["client_config"]["model"] == "Cifar10CNN":
@@ -45,6 +62,7 @@ if __name__ == "__main__":
                                                    configs["fed_config"]["num_clients"],
                                                    configs["data_config"]["iid"])
 
+    da = list(local_datasets[0])
     # assign dataset to each client
     clients = create_clients(local_datasets)
 
@@ -52,7 +70,6 @@ if __name__ == "__main__":
     transmit_model(models, clients)
 
     # prepare hold-out dataset for evaluation
-    test_data = test_dataset[[1,2,3]:[2,3,4]]
     test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
     """Execute the whole process of the federated learning."""
@@ -65,7 +82,9 @@ if __name__ == "__main__":
         # 获取随机采样的客户端
         select_client = [clients[idx] for idx in sampled_client_indices]
         # 将全局模型传递给选中的客户端
-        transmit_model(models, select_client)
+        # transmit_model(models, select_client)
+        update_selected_clients_weights(select_client, models)
+
         # 更新选中的客户端，并且返回选中客户端所有的数据量
         selected_total_size = update_selected_clients(select_client)
         # 进行模型聚合
@@ -86,7 +105,7 @@ if __name__ == "__main__":
                 if device == "cuda": torch.cuda.empty_cache()
         models.to("cpu")
         test_loss = test_loss / len(test_dataloader)
-        test_accuracy = correct / len(test_data)
+        test_accuracy = correct / len(test_dataset)
 
         results['loss'].append(test_loss)
         results['accuracy'].append(test_accuracy)
@@ -114,3 +133,5 @@ if __name__ == "__main__":
             \n\t=> Accuracy: {100. * test_accuracy:.2f}%\n"
         print(message)
         if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"] + f"Loss: {test_loss:.4f} Accuracy: {100. * test_accuracy:.2f}")
+    with open("../result/cifar10_fedala.json", encoding="utf-8", mode="w") as f:
+        json.dump(results, f)
