@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -5,6 +6,7 @@ import torch.nn.functional as F
 # Models for federated learning #
 #################################
 # McMahan et al., 2016; 199,210 parameters
+from utils.utils import init_net
 
 
 class TwoNN(nn.Module):
@@ -128,7 +130,7 @@ class MnistCNN(nn.Module):
 
 class Cifar10CNN(nn.Module):
     def __init__(self):
-        super().__init__()
+        super(Cifar10CNN, self).__init__()
         '''输入为3*32*32，尺寸减半是因为池化层'''
         self.conv1 = nn.Conv2d(3, 16, 3, padding=1)  # 输出为16*16*16
         self.conv2 = nn.Conv2d(16, 32, 3, padding=1)  # 输出为32*8*8
@@ -147,3 +149,6 @@ class Cifar10CNN(nn.Module):
         x = self.dropout(x)
         x = self.fc2(x)
         return x
+
+
+

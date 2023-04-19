@@ -27,7 +27,6 @@ class Client(object):
 
     def __init__(self, client_id, DataPartition, model):
         """Client object is initiated by the center server."""
-        self.scheduler = None
         self.id = client_id
         self.__model = model
         with open('../config.yaml', encoding="utf-8") as c:
@@ -39,7 +38,7 @@ class Client(object):
         self.criterion = configs["client_config"]["criterion"]
         self.optimizer = configs["client_config"]["optimizer"]
         self.optim_config = configs["client_config"]["optim_config"]
-
+        self.lr = configs["client_config"]["lr"]
         self.device = configs["client_config"]["device"]
 
     @property
@@ -68,7 +67,7 @@ class Client(object):
         """Update local model using local dataset."""
         self.model.train()
         self.model.to(self.device)
-        optimizer = eval(self.optimizer)(self.model.parameters(), **self.optim_config)
+        optimizer = eval(self.optimizer)(self.model.parameters(), lr=self.lr, **self.optim_config)
         for e in range(self.local_epoch):
             for data, labels in self.dataloader:
                 data, labels = data.float().to(self.device), labels.long().to(self.device)

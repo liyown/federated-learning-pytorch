@@ -24,7 +24,7 @@ if __name__ == "__main__":
             configs["data_config"]["dataset_name"],
             configs["client_config"]["model"],
             configs["client_config"]["optimizer"],
-            configs["client_config"]["optim_config"]["lr"],
+            configs["client_config"]["lr"],
             configs["fed_config"]["num_clients"],
             configs["fed_config"]["fraction"],
             configs["client_config"]["num_local_epochs"],
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     models = None
     # 修改模型的地方
     if configs["client_config"]["model"] == "Cifar10CNN":
-        models = CNN2(in_channels=3, hidden_channels=32, num_hiddens=512, num_classes=10)
+        models = Cifar10CNN()
     elif configs["client_config"]["model"] == "MnistCNN":
         models = MnistCNN()
 
@@ -51,9 +51,11 @@ if __name__ == "__main__":
     PartitionCifar10 = PartitionCIFAR("../data", "./data", "cifar10",
                                       configs["fed_config"]["num_clients"],
                                       download=True, preprocess=True,
-                                      balance=True, partition="iid",
-                                      unbalance_sgm=0, num_shards=None,
-                                      dir_alpha=None, transform=torchvision.transforms.ToTensor(),
+                                      balance=None, partition="shards",
+                                      unbalance_sgm=0, num_shards=200,
+                                      dir_alpha=None,
+                                      transform=torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
+                                                                                torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]),
                                       target_transform=None)
     draw(PartitionCifar10, "./result")
     # assign dataset to each client
@@ -78,8 +80,9 @@ if __name__ == "__main__":
         # 进行模型聚合
         models = average_model(select_client, selected_total_size)
         # 学习率衰减
-        update_LR(clients)
-        # 测试模型
+        update_LR(clients, r, select_client[0].lr, 0.99, 5)
+
+        # -----------------   测试模型   ---------------------- #
         models.eval()
         models.to(device)
         test_loss, correct = 0, 0
@@ -116,10 +119,10 @@ if __name__ == "__main__":
                     record_id + f"{dataset_name}]_{models.__class__.__name__}, IID_{iid}": test_accuracy},
                 r
             )
-        message = record_id + f"[Round: {str(r).zfill(4)}] Evaluate global model's performance...!\
+        message = "\033[91m" + f"[Round: {str(r).zfill(4)}] " + "\033[0m" + f"Evaluate global model's performance...!\
             \n\t[Server] ...finished evaluation!\
             \n\t=> Loss: {test_loss:.4f}\
             \n\t=> Accuracy: {100. * test_accuracy:.2f}%\n"
         print(message)
     with open("./result/cifar10_fedavg_non-iid.json", encoding="utf-8", mode="w") as f:
-        json.dump(json.dumps(results, indent=1), f)
+        json.dump(results, f)

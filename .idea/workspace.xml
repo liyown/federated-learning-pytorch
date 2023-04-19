@@ -10,15 +10,18 @@
     <list default="true" id="64432cb5-e60b-4ac5-b104-6586dd51daf1" name="变更" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/datasets/partitioned_cifar.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/datasets/partitioned_cifar.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fedala/ala.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedala/ala.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fedala/clientfedala.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedala/clientfedala.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fedala/serverfedala.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedala/serverfedala.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fedavg/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedavg/client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fedavg/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedavg/server.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/localtrain.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/localtrain.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard/Accuracy_Cifarala1 CIFAR10]_Cifar10CNN, IID_True/events.out.tfevents.1681811586.liyown.19492.2FL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard/Accuracy_Cifarala1 CIFAR10]_Cifar10CNN, IID_True/events.out.tfevents.1681811990.liyown.3256.2FL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard/Loss_Cifarala1 CIFAR10_Cifar10CNN ,IID_True/events.out.tfevents.1681811586.liyown.19492.1FL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard/Loss_Cifarala1 CIFAR10_Cifar10CNN ,IID_True/events.out.tfevents.1681811990.liyown.3256.1FL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard/events.out.tfevents.1681811560.liyown.19492.0FL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard/events.out.tfevents.1681811682.liyown.18900.0FL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard/events.out.tfevents.1681811965.liyown.3256.0FL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard/events.out.tfevents.1681812115.liyown.20840.0FL" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tensorboard/events.out.tfevents.1681812836.liyown.20844.0FL" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -95,6 +98,48 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="models" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Federated-Averaging-PyTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/model" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/model/models.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pictrue" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Federated-Averaging-PyTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/fedavg/result" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/fedavg/result/pictrue.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="server" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Federated-Averaging-PyTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -116,7 +161,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="serverfedala" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="utils" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Federated-Averaging-PyTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -124,53 +169,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/fedala" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/utils" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/fedala/serverfedala.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="testdataset (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Federated-Averaging-PyTorch" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/testdataset" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="testdataset" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Federated-Averaging-PyTorch" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/dataset" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="D:\gitee\python\Federated-Averaging-PyTorch\test\testdataset" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utils/utils.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -182,10 +185,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.server" />
+        <item itemvalue="Python.pictrue" />
+        <item itemvalue="Python.models" />
+        <item itemvalue="Python.utils" />
         <item itemvalue="Python.localtrain" />
-        <item itemvalue="Python.serverfedala" />
-        <item itemvalue="Python.testdataset (1)" />
-        <item itemvalue="Python.testdataset" />
       </list>
     </recent_temporary>
   </component>
@@ -251,6 +254,11 @@
           <url>file://$PROJECT_DIR$/test/localtrain.py</url>
           <line>51</line>
           <option name="timeStamp" value="65" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/fedavg/result/pictrue.py</url>
+          <line>11</line>
+          <option name="timeStamp" value="75" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

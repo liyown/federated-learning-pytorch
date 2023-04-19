@@ -44,7 +44,7 @@ def update_selected_clients(select_client):
     selected_total_size = 0
     for client in tqdm(select_client, file=sys.stdout):
         client.client_update()
-        client.client_evaluate()
+        # client.client_evaluate()
         selected_total_size += len(client)
     message = f"clients are selected and updated (with total sample size: {str(selected_total_size)})!"
     print(message)
@@ -52,14 +52,14 @@ def update_selected_clients(select_client):
     return selected_total_size
 
 
-def update_LR(client):
-    """Call "scheduler.step()" function of each all client."""
-    lr = []
-    for client in client:
-        client.scheduler.step()
-        lr.append(client.scheduler.get_last_lr()[0])  # 假设模型只有一个学习率
-    message = f"client's scheduler are updated {lr}!"
-    print(message)
+def update_LR(clients, rounds=None, lr=None, gamma=None, count=None):
+    if rounds < count:
+        pass
+    elif rounds % count == 0:
+        lr = lr * gamma
+        for client in clients:
+            client.lr = lr
+        print("\033[91m" + f"lr adjust to {lr}!" + "\033[0m")
 
 
 def average_model(select_client, selected_total_size):
@@ -145,3 +145,4 @@ def draw(PartitionDataset: PartitionCIFAR, root):
     plt.tight_layout()
     plt.xlabel('sample num')
     plt.savefig(plt_dir, dpi=400)
+
