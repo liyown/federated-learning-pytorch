@@ -11,10 +11,10 @@ from tqdm import tqdm
 
 def update_selected_clients_weights(select_client, received_global_model):
     """Call "weight_update" function of each selected client."""
-    for client in tqdm(select_client, file=sys.stdout):
+    for client in select_client:
         client.weight_update(received_global_model)
 
-    message = f"clients are adaptive_local_aggregation"
+    message = f"clients are ala select"
     print(message)
 
 
@@ -22,13 +22,13 @@ class ALA:
     def __init__(self,
                  cid: int,
                  loss: nn.Module,
-                 train_data: List[Tuple],
+                 train_data,
                  batch_size: int,
                  rand_percent: int,
                  layer_idx: int = 0,
                  eta: float = 1.0,
                  device: str = 'cpu',
-                 threshold: float = 0.02,
+                 threshold: float = 0.01,
                  num_pre_loss: int = 10) -> None:
         """
         Initialize ALA module
@@ -73,7 +73,6 @@ class ALA:
         Returns:
             None.
         """
-        print(f"start_adaptive_local_aggregation_client_{self.cid}")
         global_model.to(self.device)
         local_model.to(self.device)
         # randomly sample partial local training data
@@ -144,22 +143,17 @@ class ALA:
                                                            params_gp, self.weights):
                     weight_gran = param_t.grad * (param_g - param)
                     weight.data = torch.clamp(
-                        weight - self.eta * weight_gran, -1, 1)
+                        weight - self.eta * weight_gran, 0, 1)
 
                 # update temp local model in this batch
                 for param_t, param, param_g, weight in zip(params_tp, params_p,
                                                            params_gp, self.weights):
                     param_t.data = param + (param_g - param) * weight
-                    # print(weight)
-            print()
-            print(loss_value.item())
             losses.append(loss_value.item())
             cnt += 1
-
             # only train one epoch in the subsequent iterations
             if not self.start_phase:
                 break
-            print(np.std(losses[-self.num_pre_loss:]))
             # train the weight until convergence
             if len(losses) > self.num_pre_loss and np.std(losses[-self.num_pre_loss:]) < self.threshold:
                 print('Client:', self.cid, '\tStd:', np.std(losses[-self.num_pre_loss:]),
