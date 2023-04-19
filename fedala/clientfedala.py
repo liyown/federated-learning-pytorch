@@ -1,9 +1,11 @@
 import gc
 import logging
 import sys
+from collections import Counter
 
 import torch
 import yaml
+from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -12,34 +14,30 @@ from fedala.ala import ALA
 logger = logging.getLogger(__name__)
 
 
-def create_clients(local_datasets):
+def create_clients(DataPartition):
     """Initialize each Client instance."""
     clients = []
-    for k, dataset in tqdm(enumerate(local_datasets), file=sys.stdout):
-        client = Client(client_id=k, local_data=dataset)
-        print(client.da)
+    for k in range(DataPartition.num_clients):
+        client = Client(client_id=k, DataPartition=DataPartition)
         clients.append(client)
 
-    message = f"successfully created all {str(len(local_datasets))} clients! every client has {[len(client) for client in clients]} images"
+    message = f"successfully created all {DataPartition.num_clients} clients!"
     print(message)
-    with open('../config.yaml', encoding="utf-8") as c:
-        configs = yaml.load(c, Loader=yaml.FullLoader)
-        if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"] + message)
-
     return clients
 
 
 class Client(object):
 
-    def __init__(self, client_id, local_data):
+    def __init__(self, client_id, DataPartition):
         """Client object is initiated by the center server."""
         self.id = client_id
-        self.data = local_data  # 本地dataset类
         self.__model = None
-
         with open('../config.yaml', encoding="utf-8") as c:
             configs = yaml.load(c, Loader=yaml.FullLoader)
-        self.dataloader = DataLoader(self.data, batch_size=configs["client_config"]["batch_size"], shuffle=True)
+
+        self.dataloader = DataPartition.get_dataloader(cid=self.id, batch_size=configs["client_config"]["batch_size"],
+                                                       type="train")
+        self.dataset = DataPartition.get_dataset(cid=self.id, type="train")
         self.local_epoch = configs["client_config"]["num_local_epochs"]
         self.criterion = configs["client_config"]["criterion"]
         self.optimizer = configs["client_config"]["optimizer"]
@@ -47,8 +45,8 @@ class Client(object):
 
         self.device = configs["client_config"]["device"]
 
-        self.ALA = ALA(self.id, eval(self.criterion)(), self.data, batch_size=32,
-                       rand_percent=100, layer_idx=8, eta=1, device=self.device)
+        self.ALA = ALA(self.id, eval(self.criterion)(), self.dataset, batch_size=32,
+                       rand_percent=100, layer_idx=1, eta=1, device=self.device)
 
     @property
     def model(self):
@@ -62,18 +60,26 @@ class Client(object):
 
     def __len__(self):
         """Return a total size of the client's local data."""
-        return len(self.data)
+        return len(self.dataloader) * self.dataloader.batch_size
+
+    def data_distibute(self):
+        # 统计每个标签的数量
+        counter = Counter()
+        for batch in self.dataloader:
+            _, labels = batch
+            counter.update(labels.tolist())
+        return counter
 
     def weight_update(self, received_global_model):
         """Update local model using local dataset."""
         self.ALA.adaptive_local_aggregation(received_global_model, self.model)
-        # self.model.to("cpu")
 
     def client_update(self):
         """Update local model using local dataset."""
         self.model.train()
         self.model.to(self.device)
         optimizer = eval(self.optimizer)(self.model.parameters(), **self.optim_config)
+        scheduler = StepLR(optimizer, step_size=5, gamma=0.9934)
         for e in range(self.local_epoch):
             for data, labels in self.dataloader:
                 data, labels = data.float().to(self.device), labels.long().to(self.device)
@@ -84,6 +90,7 @@ class Client(object):
 
                 loss.backward()
                 optimizer.step()
+                scheduler.step()
 
                 if self.device == "cuda": torch.cuda.empty_cache()
         self.model.to("cpu")

@@ -10,18 +10,19 @@ data_config:
 client_config:
   model: Cifar10CNN
   device: cuda
-  batch_size: 16
+  batch_size: 10
   num_local_epochs: 5
   criterion: torch.nn.CrossEntropyLoss
-  optimizer: torch.optim.Adam
+  optimizer: torch.optim.SGD
   optim_config:
-    lr: 0.001
+    lr: 0.05
+
 fed_config:
   fraction: 0.1
-  num_clients: 20
-  round: 100
+  num_clients: 100
+  round: 50
 init_config:
-  init_type: xavier
+  init_type: kaiming
   init_gain: 1.0
 log_config:
   log_path: ../tensorboard/

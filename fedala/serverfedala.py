@@ -5,13 +5,15 @@ import time
 
 import numpy as np
 import torch
+import torchvision
 import yaml
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
+from dataset.datasets.partitioned_cifar import PartitionCIFAR
 from fedala.ala import update_selected_clients_weights
 from fedala.clientfedala import create_clients
-from model.models import MnistCNN, Cifar10CNN
+from model.models import MnistCNN, Cifar10CNN, CNN2
 from utils.utils import transmit_model, update_selected_clients, average_model, launch_tensor_board, \
     init_net, seed_torch
 
@@ -31,24 +33,14 @@ if __name__ == "__main__":
             configs["client_config"]["num_local_epochs"],
             configs["client_config"]["batch_size"],
             configs["global_config"]["record"]
-            ))
-    # 全局参数
-    global_round = 0
-    # 日志记录
-    logging.basicConfig(filename="../run.log", level=logging.INFO,
-                        format='%(asctime)s %(levelname)s %(message)s')
+        ))
     # tensorboard
-    print(configs["log_config"]["log_path"])
     writer = SummaryWriter(log_dir=configs["log_config"]["log_path"], filename_suffix="FL")
-    tb_thread = threading.Thread(
-        target=launch_tensor_board, daemon=True,
-        args=(configs["log_config"]["log_path"], configs["log_config"]["tb_port"])
-    ).start()
     time.sleep(2)
 
     # 修改模型的地方
     if configs["client_config"]["model"] == "Cifar10CNN":
-        models = Cifar10CNN()
+        models = CNN2(in_channels=3, hidden_channels=32, num_hiddens=512, num_classes=10)
     elif configs["client_config"]["model"] == "MnistCNN":
         models = MnistCNN()
 
@@ -57,22 +49,23 @@ if __name__ == "__main__":
 
     device = configs["client_config"]["device"]
 
-    # split local dataset for each client
-    # 返回两个dataset，第一个是一个列表，代表本地数据，第二个是测试数据
-    local_datasets, test_dataset = create_datasets(configs["data_config"]["data_path"],
-                                                   configs["data_config"]["dataset_name"],
-                                                   configs["fed_config"]["num_clients"],
-                                                   configs["data_config"]["iid"])
+    # 创建分割数据集及其类
+    PartitionCifar10 = PartitionCIFAR("../data", "./data", "cifar10",
+                                      configs["fed_config"]["num_clients"],
+                                      download=True, preprocess=True,
+                                      balance=True, partition="iid",
+                                      unbalance_sgm=0, num_shards=None,
+                                      dir_alpha=None, transform=torchvision.transforms.ToTensor(),
+                                      target_transform=None)
 
-    da = list(local_datasets[0])
     # assign dataset to each client
-    clients = create_clients(local_datasets)
+    clients = create_clients(PartitionCifar10)
 
     # send the model skeleton to all clients
     transmit_model(models, clients)
 
     # prepare hold-out dataset for evaluation
-    test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+    test_dataloader = PartitionCifar10.get_dataloader(cid=0, batch_size=64, type="test")
 
     """Execute the whole process of the federated learning."""
     results = {"loss": [], "accuracy": []}
@@ -107,7 +100,7 @@ if __name__ == "__main__":
                 if device == "cuda": torch.cuda.empty_cache()
         models.to("cpu")
         test_loss = test_loss / len(test_dataloader)
-        test_accuracy = correct / len(test_dataset)
+        test_accuracy = correct / (len(test_dataloader) * test_dataloader.batch_size)
 
         results['loss'].append(test_loss)
         results['accuracy'].append(test_accuracy)
@@ -134,7 +127,5 @@ if __name__ == "__main__":
             \n\t=> Loss: {test_loss:.4f}\
             \n\t=> Accuracy: {100. * test_accuracy:.2f}%\n"
         print(message)
-        if configs["global_config"]["record"]: logging.info(
-            configs["global_config"]["record_id"] + f"Loss: {test_loss:.4f} Accuracy: {100. * test_accuracy:.2f}")
-    with open("../result/cifar10_fedala.json", encoding="utf-8", mode="w") as f:
+    with open("./result/cifar10_fedala.json", encoding="utf-8", mode="w") as f:
         json.dump(results, f)

@@ -60,9 +60,8 @@ class CNN(nn.Module):
 
 # for CIFAR10
 class CNN2(nn.Module):
-    def __init__(self, name, in_channels, hidden_channels, num_hiddens, num_classes):
+    def __init__(self, in_channels, hidden_channels, num_hiddens, num_classes):
         super(CNN2, self).__init__()
-        self.name = name
         self.activation = nn.ReLU(True)
 
         self.conv1 = nn.Conv2d(in_channels=in_channels, out_channels=hidden_channels, kernel_size=(5, 5), padding=1,

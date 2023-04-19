@@ -1,17 +1,19 @@
 import json
 import logging
-
+import torchvision.utils as vutils
 import numpy as np
 import torch
 import torchvision.transforms
 import yaml
+from PIL import Image
+from matplotlib import pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
 
 from dataset.datasets.partitioned_cifar import PartitionCIFAR
 from fedavg.client import create_clients
-from model.models import MnistCNN, Cifar10CNN
+from model.models import MnistCNN, Cifar10CNN, CNN2
 from utils.utils import seed_torch, init_net, transmit_model, update_selected_clients, \
-    average_model
+    average_model, draw, update_LR
 
 if __name__ == "__main__":
     with open('../config.yaml', encoding="utf-8") as c:
@@ -29,15 +31,13 @@ if __name__ == "__main__":
             configs["client_config"]["batch_size"],
             configs["global_config"]["record"]
         ))
-    # 日志记录
-    logging.basicConfig(filename="../run.log", level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
     # tensorboard
     writer = SummaryWriter(log_dir=configs["log_config"]["log_path"], filename_suffix="FL")
     # -------------------------------------------有效代码开始———————————————————————————————————————————— #
     models = None
     # 修改模型的地方
     if configs["client_config"]["model"] == "Cifar10CNN":
-        models = Cifar10CNN()
+        models = CNN2(in_channels=3, hidden_channels=32, num_hiddens=512, num_classes=10)
     elif configs["client_config"]["model"] == "MnistCNN":
         models = MnistCNN()
 
@@ -55,15 +55,12 @@ if __name__ == "__main__":
                                       unbalance_sgm=0, num_shards=None,
                                       dir_alpha=None, transform=torchvision.transforms.ToTensor(),
                                       target_transform=None)
-
+    draw(PartitionCifar10, "./result")
     # assign dataset to each client
-    clients = create_clients(PartitionCifar10)
-
-    # send the model skeleton to all clients
-    transmit_model(models, clients)
+    clients = create_clients(PartitionCifar10, models)
 
     # prepare hold-out dataset for evaluation
-    test_dataloader = PartitionCifar10.get_dataloader(cid=0, batch_size=64, type="test")
+    test_dataloader = PartitionCifar10.get_dataloader(batch_size=64, type="test")
 
     """Execute the whole process of the federated learning."""
     results = {"loss": [], "accuracy": []}
@@ -80,7 +77,9 @@ if __name__ == "__main__":
         selected_total_size = update_selected_clients(select_client)
         # 进行模型聚合
         models = average_model(select_client, selected_total_size)
-
+        # 学习率衰减
+        update_LR(clients)
+        # 测试模型
         models.eval()
         models.to(device)
         test_loss, correct = 0, 0
@@ -122,7 +121,5 @@ if __name__ == "__main__":
             \n\t=> Loss: {test_loss:.4f}\
             \n\t=> Accuracy: {100. * test_accuracy:.2f}%\n"
         print(message)
-        if configs["global_config"]["record"]: logging.info(
-            configs["global_config"]["record_id"] + f"Loss: {test_loss:.4f} Accuracy: {100. * test_accuracy:.2f}")
-    with open("result/cifar10_fedavg_noiid.json", encoding="utf-8", mode="w") as f:
-        json.dump(results, f)
+    with open("./result/cifar10_fedavg_non-iid.json", encoding="utf-8", mode="w") as f:
+        json.dump(json.dumps(results, indent=1), f)

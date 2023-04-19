@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 
 from model.models import Cifar10CNN
 
-train_data = torchvision.datasets.CIFAR10(root="../data", train=True, transform=torchvision.transforms.ToTensor(),
+train_data = torchvision.datasets.CIFAR10(root="../data", train=True,
                                           download=True)
 test_data = torchvision.datasets.CIFAR10(root="../data", train=False, transform=torchvision.transforms.ToTensor(),
                                          download=True)

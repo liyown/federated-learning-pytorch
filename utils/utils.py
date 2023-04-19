@@ -6,10 +6,15 @@ import sys
 from collections import OrderedDict
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn.init as init
 import yaml
+from matplotlib import pyplot as plt
 from tqdm import tqdm
+
+from dataset.datasets.partitioned_cifar import PartitionCIFAR
+from dataset.functional import partition_report
 
 
 def launch_tensor_board(log_path, port):
@@ -32,9 +37,6 @@ def transmit_model(model, select_client):
         client_id.append(client.id)
     message = f"successfully transmitted models to clients{client_id}!"
     print(message)
-    with open('../config.yaml', encoding="utf-8") as c:
-        configs = yaml.load(c, Loader=yaml.FullLoader)
-        if configs["global_config"]["record"]: logging.info(configs["global_config"]["record_id"] + message)
 
 
 def update_selected_clients(select_client):
@@ -42,11 +44,22 @@ def update_selected_clients(select_client):
     selected_total_size = 0
     for client in tqdm(select_client, file=sys.stdout):
         client.client_update()
+        client.client_evaluate()
         selected_total_size += len(client)
     message = f"clients are selected and updated (with total sample size: {str(selected_total_size)})!"
     print(message)
 
     return selected_total_size
+
+
+def update_LR(client):
+    """Call "scheduler.step()" function of each all client."""
+    lr = []
+    for client in client:
+        client.scheduler.step()
+        lr.append(client.scheduler.get_last_lr()[0])  # 假设模型只有一个学习率
+    message = f"client's scheduler are updated {lr}!"
+    print(message)
 
 
 def average_model(select_client, selected_total_size):
@@ -103,30 +116,32 @@ def init_net(model, init_type, init_gain):
     return model
 
 
-def seed_torch(seed=1029):
+def seed_torch(seed=3027):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)  # 为了禁止hash随机化，使得实验可复现
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cudnn.deterministic = True
+    # torch.backends.cudnn.benchmark = False
+    # torch.backends.cudnn.deterministic = True
 
-# def draw(PartitionDataset):
-#     PartitionDataset
-#     csv_file = "./cifar10_hetero_dir_0.3_100clients.csv"
-#
-#     partition_report(trainset.targets, hetero_dir_part.client_dict,
-#                      class_num=num_classes,
-#                      verbose=False, file=csv_file)
-#
-#     hetero_dir_part_df = pd.read_csv(csv_file, header=1)
-#     hetero_dir_part_df = hetero_dir_part_df.set_index('client')
-#     col_names = [f"class{i}" for i in range(num_classes)]
-#     for col in col_names:
-#         hetero_dir_part_df[col] = (hetero_dir_part_df[col] * hetero_dir_part_df['Amount']).astype(int)
-#
-#     hetero_dir_part_df[col_names].iloc[:10].plot.barh(stacked=True)
-#     plt.tight_layout()
-#     plt.xlabel('sample num')
-#     plt.savefig(f"./cifar10_hetero_dir_0.3_100clients.png", dpi=400)
+
+def draw(PartitionDataset: PartitionCIFAR, root):
+    os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+    csv_dir = os.path.join(root,
+                           f"{PartitionDataset.dataname}_{PartitionDataset.num_clients}_{PartitionDataset.partitioner.partition}_{PartitionDataset.partitioner.balance}.csv")
+    partition_report(PartitionDataset.train_datasets.targets, PartitionDataset.partitioner.client_dict,
+                     class_num=np.unique(PartitionDataset.train_datasets.targets).shape[0],
+                     verbose=False, file=csv_dir)
+
+    hetero_dir_part_df = pd.read_csv(csv_dir, header=1)
+    hetero_dir_part_df = hetero_dir_part_df.set_index('client')
+    col_names = [f"class{i}" for i in range(np.unique(PartitionDataset.train_datasets.targets).shape[0])]
+    for col in col_names:
+        hetero_dir_part_df[col] = (hetero_dir_part_df[col] * hetero_dir_part_df['Amount']).astype(int)
+    plt_dir = os.path.join(root,
+                           f"{PartitionDataset.dataname}_{PartitionDataset.num_clients}_{PartitionDataset.partitioner.partition}_{PartitionDataset.partitioner.balance}.png")
+    hetero_dir_part_df[col_names].iloc[:10].plot.barh(stacked=True)
+    plt.tight_layout()
+    plt.xlabel('sample num')
+    plt.savefig(plt_dir, dpi=400)

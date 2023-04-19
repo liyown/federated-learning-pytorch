@@ -2,17 +2,20 @@ import gc
 import logging
 from collections import Counter
 
+import numpy as np
 import torch
 import yaml
+from PIL import Image
+from torch.optim.lr_scheduler import StepLR
 
 logger = logging.getLogger(__name__)
 
 
-def create_clients(DataPartition):
+def create_clients(DataPartition, model):
     """Initialize each Client instance."""
     clients = []
     for k in range(DataPartition.num_clients):
-        client = Client(client_id=k, DataPartition=DataPartition)
+        client = Client(client_id=k, DataPartition=DataPartition, model=model)
         clients.append(client)
 
     message = f"successfully created all {DataPartition.num_clients} clients!"
@@ -22,10 +25,11 @@ def create_clients(DataPartition):
 
 class Client(object):
 
-    def __init__(self, client_id, DataPartition):
+    def __init__(self, client_id, DataPartition, model):
         """Client object is initiated by the center server."""
+        self.scheduler = None
         self.id = client_id
-        self.__model = None
+        self.__model = model
         with open('../config.yaml', encoding="utf-8") as c:
             configs = yaml.load(c, Loader=yaml.FullLoader)
 
@@ -68,14 +72,11 @@ class Client(object):
         for e in range(self.local_epoch):
             for data, labels in self.dataloader:
                 data, labels = data.float().to(self.device), labels.long().to(self.device)
-
                 optimizer.zero_grad()
                 outputs = self.model(data)
                 loss = eval(self.criterion)()(outputs, labels)
-
                 loss.backward()
                 optimizer.step()
-
                 if self.device == "cuda": torch.cuda.empty_cache()
         self.model.to("cpu")
 
@@ -98,14 +99,10 @@ class Client(object):
         self.model.to("cpu")
 
         test_loss = test_loss / len(self.dataloader)
-        test_accuracy = correct / len(self.data)
+        test_accuracy = correct / (len(self.dataloader) * self.dataloader.batch_size)
 
         message = f"\t[Client {str(self.id).zfill(4)}] ...finished evaluation!\
             \n\t=> Test loss: {test_loss:.4f}\
             \n\t=> Test accuracy: {100. * test_accuracy:.2f}%\n"
-        print(message, flush=True);
-        logging.info(message)
-        del message;
-        gc.collect()
-
+        print(message, flush=True)
         return test_loss, test_accuracy
