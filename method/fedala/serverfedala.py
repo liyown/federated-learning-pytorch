@@ -8,22 +8,22 @@ import yaml
 from torch.utils.tensorboard import SummaryWriter
 
 from dataset.datasets.partitioned_cifar import PartitionCIFAR
-from method.fedala.ala import update_selected_clients_weights
 from method.fedala.clientfedala import create_clients
-from model.models import MnistCNN, CNN2
-from utils.utils import transmit_model, update_selected_clients, average_model, init_net, seed_torch
+from model.models import MnistCNN, CNN2, Cifar10CNN
+from utils.utils import update_selected_clients, average_model, init_net, seed_torch, draw, update_LR, transmit_model, \
+    local_initialization
 
 if __name__ == "__main__":
     with open('./config.yaml', encoding="utf-8") as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)
 
     print(
-        "\n\nid:{}dataset_name:{}--model:{}--optimizer:{}--lr:{}--num_clients:{}--fraction:{}--num_local_epochs:{}--batch_size:{}--record:{}\n\n".format(
+        "\nid:{}dataset_name:{}--model:{}--optimizer:{}--lr:{}--num_clients:{}--fraction:{}--num_local_epochs:{}--batch_size:{}--record:{}\n".format(
             configs["global_config"]["record_id"],
             configs["data_config"]["dataset_name"],
             configs["client_config"]["model"],
             configs["client_config"]["optimizer"],
-            configs["client_config"]["optim_config"]["lr"],
+            configs["client_config"]["lr"],
             configs["fed_config"]["num_clients"],
             configs["fed_config"]["fraction"],
             configs["client_config"]["num_local_epochs"],
@@ -32,36 +32,34 @@ if __name__ == "__main__":
         ))
     # tensorboard
     writer = SummaryWriter(log_dir=configs["log_config"]["log_path"], filename_suffix="FL")
-    time.sleep(2)
-
+    # -------------------------------------------有效代码开始———————————————————————————————————————————— #
+    models = None
     # 修改模型的地方
     if configs["client_config"]["model"] == "Cifar10CNN":
-        models = CNN2(in_channels=3, hidden_channels=32, num_hiddens=512, num_classes=10)
+        models = Cifar10CNN()
     elif configs["client_config"]["model"] == "MnistCNN":
         models = MnistCNN()
-
+    # 设置随机种子
     seed_torch()
+    # 初始化模型
     models = init_net(models, configs["init_config"]["init_type"], configs["init_config"]["init_gain"])
-
     device = configs["client_config"]["device"]
 
     # 创建分割数据集及其类
-    PartitionCifar10 = PartitionCIFAR("../data", "data", "cifar10",
+    PartitionCifar10 = PartitionCIFAR(configs["data_config"]["data_path"], "data",
+                                      configs["data_config"]["dataset_name"],
                                       configs["fed_config"]["num_clients"],
-                                      download=True, preprocess=True,
-                                      balance=True, partition="iid",
-                                      unbalance_sgm=0, num_shards=None,
-                                      dir_alpha=None, transform=torchvision.transforms.ToTensor(),
-                                      target_transform=None)
+                                      download=True, preprocess=True, transform=torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]),
+                                      target_transform=None, **configs["data_config"]["partition_config"])
+
+    # draw(PartitionCifar10, "./result")
 
     # assign dataset to each client
-    clients = create_clients(PartitionCifar10)
-
-    # send the model skeleton to all clients
-    transmit_model(models, clients)
+    clients = create_clients(PartitionCifar10, models)
 
     # prepare hold-out dataset for evaluation
-    test_dataloader = PartitionCifar10.get_dataloader(cid=0, batch_size=64, type="test")
+    get_dataset = PartitionCifar10.get_dataset(cid=1, type="train")
+    test_dataloader = PartitionCifar10.get_dataloader(batch_size=64, type="test")
 
     """Execute the whole process of the federated learning."""
     results = {"loss": [], "accuracy": []}
@@ -72,15 +70,15 @@ if __name__ == "__main__":
                                                          size=num_sampled_clients, replace=False).tolist())
         # 获取随机采样的客户端
         select_client = [clients[idx] for idx in sampled_client_indices]
-        # 将全局模型传递给选中的客户端
-        # transmit_model(models, select_client)
-        update_selected_clients_weights(select_client, models)
-
+        # 将全局模型ala更新到选中的客户端
+        local_initialization(models, select_client)
         # 更新选中的客户端，并且返回选中客户端所有的数据量
         selected_total_size = update_selected_clients(select_client)
         # 进行模型聚合
         models = average_model(select_client, selected_total_size)
-
+        # 学习率衰减
+        update_LR(clients, r, select_client[0].lr, 0.99, 5)
+        # -----------------   测试模型   ---------------------- #
         models.eval()
         models.to(device)
         test_loss, correct = 0, 0
@@ -102,26 +100,25 @@ if __name__ == "__main__":
         results['accuracy'].append(test_accuracy)
 
         dataset_name = configs["data_config"]["dataset_name"]
-        iid = configs["data_config"]["iid"]
         record_id = configs["global_config"]["record_id"]
         if configs["global_config"]["record"]:
             writer.add_scalars(
                 'Loss',
                 {
-                    record_id + f"{dataset_name}_{models.__class__.__name__} ,IID_{iid}": test_loss},
+                    record_id + f"{dataset_name}_{models.__class__.__name__}": test_loss},
                 r
             )
             writer.add_scalars(
 
                 'Accuracy',
                 {
-                    record_id + f"{dataset_name}]_{models.__class__.__name__}, IID_{iid}": test_accuracy},
+                    record_id + f"{dataset_name}]_{models.__class__.__name__}": test_accuracy},
                 r
             )
-        message = record_id + f"[Round: {str(r).zfill(4)}] Evaluate global model's performance...!\
+        message = "\033[91m" + f"[Round: {str(r).zfill(4)}] " + "\033[0m" + f"Evaluate global model's performance...!\
             \n\t[Server] ...finished evaluation!\
             \n\t=> Loss: {test_loss:.4f}\
             \n\t=> Accuracy: {100. * test_accuracy:.2f}%\n"
         print(message)
-    with open("./result/cifar10_fedala.json", encoding="utf-8", mode="w") as f:
+    with open("./result/cifar10_fedavg_balance_{balance}_partition_{partition}_unbalance_sgm_{unbalance_sgm}_num_shards_{num_shards}_dir_alpha_{dir_alpha}_{client_config}.json".format(configs["client_config"], **configs["data_config"]["partition_config"]), encoding="utf-8", mode="w") as f:
         json.dump(results, f)

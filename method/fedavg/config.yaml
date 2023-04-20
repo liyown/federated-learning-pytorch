@@ -7,12 +7,11 @@ data_config:
   data_path: ../../data/
   dataset_name: cifar10
   partition_config:
-    balance: None
-    partition: "dirichlet"
+    balance: null
+    partition: dirichlet
     unbalance_sgm: 0
     num_shards: 200
-    dir_alpha: 1
-
+    dir_alpha: 0.1
 client_config:
   model: Cifar10CNN
   device: cuda
@@ -22,7 +21,6 @@ client_config:
   lr: 0.05
   optimizer: torch.optim.SGD
   optim_config: {}
-
 fed_config:
   fraction: 0.1
   num_clients: 100

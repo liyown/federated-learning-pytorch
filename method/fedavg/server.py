@@ -48,6 +48,7 @@ if __name__ == "__main__":
                                       configs["fed_config"]["num_clients"],
                                       download=True, preprocess=True, transform=torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]),
                                       target_transform=None, **configs["data_config"]["partition_config"])
+
     draw(PartitionCifar10, "./result")
     # assign dataset to each client
     clients = create_clients(PartitionCifar10, models)
@@ -94,20 +95,19 @@ if __name__ == "__main__":
         results['loss'].append(test_loss)
         results['accuracy'].append(test_accuracy)
         dataset_name = configs["data_config"]["dataset_name"]
-        iid = configs["data_config"]["iid"]
         record_id = configs["global_config"]["record_id"]
         if configs["global_config"]["record"]:
             writer.add_scalars(
                 'Loss',
                 {
-                    record_id + f"{dataset_name}_{models.__class__.__name__} ,IID_{iid}": test_loss},
+                    record_id + f"{dataset_name}_{models.__class__.__name__}": test_loss},
                 r
             )
             writer.add_scalars(
 
                 'Accuracy',
                 {
-                    record_id + f"{dataset_name}]_{models.__class__.__name__}, IID_{iid}": test_accuracy},
+                    record_id + f"{dataset_name}]_{models.__class__.__name__}": test_accuracy},
                 r
             )
         message = "\033[91m" + f"[Round: {str(r).zfill(4)}] " + "\033[0m" + f"Evaluate global model's performance...!\
@@ -115,5 +115,5 @@ if __name__ == "__main__":
             \n\t=> Loss: {test_loss:.4f}\
             \n\t=> Accuracy: {100. * test_accuracy:.2f}%\n"
         print(message)
-    with open("result/cifar10_fedavg_{balance}_{partition}_{unbalance_sgm}_{num_shards}_{dir_alpha}.json".format(**configs["data_config"]["partition_config"]), encoding="utf-8", mode="w") as f:
+    with open("result/cifar10_fedavg_balance_{balance}_partition_{partition}_unbalance_sgm_{unbalance_sgm}_num_shards_{num_shards}_dir_alpha_{dir_alpha}.json".format(**configs["data_config"]["partition_config"]), encoding="utf-8", mode="w") as f:
         json.dump(results, f)

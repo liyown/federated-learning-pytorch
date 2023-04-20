@@ -39,12 +39,22 @@ def transmit_model(model, select_client):
     print(message)
 
 
+def local_initialization(model, select_client):
+    """Send the updated global model to selected/all clients."""
+    client_id = []
+    for client in select_client:
+        client.local_initialization(copy.deepcopy(model))
+        client_id.append(client.id)
+    message = f"successfully initialization models to clients{client_id}!"
+    print(message)
+
+
 def update_selected_clients(select_client):
     """Call "client_update" function of each selected client."""
     selected_total_size = 0
     for client in tqdm(select_client, file=sys.stdout):
         client.client_update()
-       # client.client_evaluate()
+        # client.client_evaluate()
         selected_total_size += len(client)
     message = f"clients are selected and updated (with total sample size: {str(selected_total_size)})!"
     print(message)
@@ -66,7 +76,7 @@ def average_model(select_client, selected_total_size):
     """Average the updated and transmitted parameters from each selected client."""
 
     mixing_coefficients = [len(client) / selected_total_size for client in select_client]
-    global_model = select_client[0].model
+    global_model = copy.deepcopy(select_client[0].model)
     averaged_weights = OrderedDict()
     for it, client in tqdm(enumerate(select_client), file=sys.stdout):
         local_weights = client.model.state_dict()

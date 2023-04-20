@@ -1,3 +1,4 @@
+import copy
 import gc
 import logging
 from collections import Counter
@@ -15,7 +16,7 @@ def create_clients(DataPartition, model):
     """Initialize each Client instance."""
     clients = []
     for k in range(DataPartition.num_clients):
-        client = Client(client_id=k, DataPartition=DataPartition, model=model)
+        client = Client(client_id=k, DataPartition=DataPartition, model=copy.deepcopy(model))
         clients.append(client)
 
     message = f"successfully created all {DataPartition.num_clients} clients!"

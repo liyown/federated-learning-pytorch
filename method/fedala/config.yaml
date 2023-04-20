@@ -5,8 +5,13 @@ global_config:
   record_id: 'Cifarala1 '
 data_config:
   data_path: ../../data/
-  dataset_name: CIFAR10
-  iid: true
+  dataset_name: cifar10
+  partition_config:
+    balance: null
+    partition: dirichlet
+    unbalance_sgm: 0
+    num_shards: 200
+    dir_alpha: 0.1
 client_config:
   model: Cifar10CNN
   device: cuda
@@ -16,7 +21,6 @@ client_config:
   lr: 0.05
   optimizer: torch.optim.SGD
   optim_config: {}
-
 fed_config:
   fraction: 0.1
   num_clients: 100
@@ -25,6 +29,6 @@ init_config:
   init_type: kaiming
   init_gain: 1.0
 log_config:
-  log_path: ../tensorboard/
+  log_path: ../../tensorboard/
   log_name: FL.tensorboard
   tb_port: 5252
