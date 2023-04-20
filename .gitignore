@@ -1,6 +1,8 @@
 *.pyc
 data/
 result/
+
+
 method/fedavg/data
 method/fedavg/result
 
