@@ -4,7 +4,7 @@ global_config:
   record: false
   record_id: 'Cifarala1 '
 data_config:
-  data_path: ../data/
+  data_path: ../../data/
   dataset_name: CIFAR10
   iid: true
 client_config:

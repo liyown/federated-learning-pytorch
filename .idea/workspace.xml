@@ -8,11 +8,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64432cb5-e60b-4ac5-b104-6586dd51daf1" name="变更" comment="">
-      <change afterPath="$PROJECT_DIR$/model/cnn.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/method/fedavg/config.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/config.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fedavg/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedavg/server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/method/fedala/config.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fedala/ala.py" beforeDir="false" afterPath="$PROJECT_DIR$/method/fedala/ala.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fedala/clientfedala.py" beforeDir="false" afterPath="$PROJECT_DIR$/method/fedala/clientfedala.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fedala/serverfedala.py" beforeDir="false" afterPath="$PROJECT_DIR$/method/fedala/serverfedala.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fedavg/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/method/fedavg/client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fedavg/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/method/fedavg/server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/localtrain.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/localtrain.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,49 +52,28 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "last_opened_file_path": "D:/gitee/python/Federated-Averaging-PyTorch/model",
+    "last_opened_file_path": "D:/gitee/python/Federated-Averaging-PyTorch/test",
     "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "debugger.dataViews.python.type.renderers"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\model" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\test" />
+      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\method\fedala" />
+      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\method\fedavg" />
+      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\model" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\dataset\datasets" />
-      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\src" />
-      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\result" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\method" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\fedavg\result\balance" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\test" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\model" />
-      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\fedavg\result" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.pictrue">
-    <configuration name="localtrain" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Federated-Averaging-PyTorch" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test/localtrain.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python.server (1)">
     <configuration name="models" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Federated-Averaging-PyTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -122,6 +108,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/fedavg/result/pictrue.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="server (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Federated-Averaging-PyTorch" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/method/fedavg" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/method/fedavg/server.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -174,11 +181,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.server (1)" />
         <item itemvalue="Python.pictrue" />
         <item itemvalue="Python.server" />
         <item itemvalue="Python.models" />
         <item itemvalue="Python.utils" />
-        <item itemvalue="Python.localtrain" />
       </list>
     </recent_temporary>
   </component>
@@ -246,9 +253,14 @@
           <option name="timeStamp" value="65" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/fedavg/result/pictrue.py</url>
-          <line>18</line>
+          <url>file://$PROJECT_DIR$/method/fedavg/result/pictrue.py</url>
+          <line>25</line>
           <option name="timeStamp" value="75" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/method/fedavg/server.py</url>
+          <line>40</line>
+          <option name="timeStamp" value="76" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

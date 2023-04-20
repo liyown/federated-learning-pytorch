@@ -29,7 +29,7 @@ class Client(object):
         """Client object is initiated by the center server."""
         self.id = client_id
         self.__model = model
-        with open('../config.yaml', encoding="utf-8") as c:
+        with open('./config.yaml', encoding="utf-8") as c:
             configs = yaml.load(c, Loader=yaml.FullLoader)
 
         self.dataloader = DataPartition.get_dataloader(cid=self.id, batch_size=configs["client_config"]["batch_size"],

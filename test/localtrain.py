@@ -16,7 +16,7 @@ train_data = torchvision.datasets.CIFAR10(root="../data", train=True,
                                           download=True)
 test_data = torchvision.datasets.CIFAR10(root="../data", train=False, transform=torchvision.transforms.ToTensor(),
                                          download=True)
-with open("../config.yaml", "r", encoding="utf-8") as f:
+with open("./config.yaml", "r", encoding="utf-8") as f:
     configs = yaml.load(f, Loader=yaml.FullLoader)
 # length 长度
 train_data_size = len(train_data)

@@ -1,15 +1,12 @@
 import gc
 import logging
-import sys
 from collections import Counter
 
 import torch
 import yaml
 from torch.optim.lr_scheduler import StepLR
-from torch.utils.data import DataLoader
-from tqdm import tqdm
 
-from fedala.ala import ALA
+from method.fedala.ala import ALA
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +29,7 @@ class Client(object):
         """Client object is initiated by the center server."""
         self.id = client_id
         self.__model = None
-        with open('../config.yaml', encoding="utf-8") as c:
+        with open('./config.yaml', encoding="utf-8") as c:
             configs = yaml.load(c, Loader=yaml.FullLoader)
 
         self.dataloader = DataPartition.get_dataloader(cid=self.id, batch_size=configs["client_config"]["batch_size"],

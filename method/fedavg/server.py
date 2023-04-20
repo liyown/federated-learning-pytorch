@@ -1,22 +1,18 @@
 import json
-import logging
-import torchvision.utils as vutils
 import numpy as np
 import torch
 import torchvision.transforms
 import yaml
-from PIL import Image
-from matplotlib import pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
 
 from dataset.datasets.partitioned_cifar import PartitionCIFAR
-from fedavg.client import create_clients
-from model.models import MnistCNN, Cifar10CNN, CNN2
+from method.fedavg.client import create_clients
+from model.models import MnistCNN, Cifar10CNN
 from utils.utils import seed_torch, init_net, transmit_model, update_selected_clients, \
     average_model, draw, update_LR
 
 if __name__ == "__main__":
-    with open('../config.yaml', encoding="utf-8") as c:
+    with open('./config.yaml', encoding="utf-8") as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)
     print(
         "\nid:{}dataset_name:{}--model:{}--optimizer:{}--lr:{}--num_clients:{}--fraction:{}--num_local_epochs:{}--batch_size:{}--record:{}\n".format(
@@ -48,15 +44,10 @@ if __name__ == "__main__":
     device = configs["client_config"]["device"]
 
     # 创建分割数据集及其类
-    PartitionCifar10 = PartitionCIFAR("../data", "./data", "cifar10",
+    PartitionCifar10 = PartitionCIFAR(configs["data_config"]["data_path"], "data", configs["data_config"]["dataset_name"],
                                       configs["fed_config"]["num_clients"],
-                                      download=True, preprocess=True,
-                                      balance=None, partition="dirichlet",
-                                      unbalance_sgm=0, num_shards=200,
-                                      dir_alpha=1,
-                                      transform=torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
-                                                                                torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]),
-                                      target_transform=None)
+                                      download=True, preprocess=True, transform=torchvision.transforms.Compose([torchvision.transforms.ToTensor(), torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]),
+                                      target_transform=None, **configs["data_config"]["partition_config"])
     draw(PartitionCifar10, "./result")
     # assign dataset to each client
     clients = create_clients(PartitionCifar10, models)
@@ -124,5 +115,5 @@ if __name__ == "__main__":
             \n\t=> Loss: {test_loss:.4f}\
             \n\t=> Accuracy: {100. * test_accuracy:.2f}%\n"
         print(message)
-    with open("./result/cifar10_fedavg_dirichlet_1.json", encoding="utf-8", mode="w") as f:
+    with open("result/cifar10_fedavg_{balance}_{partition}_{unbalance_sgm}_{num_shards}_{dir_alpha}.json".format(**configs["data_config"]["partition_config"]), encoding="utf-8", mode="w") as f:
         json.dump(results, f)

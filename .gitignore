@@ -1,11 +1,11 @@
 *.pyc
 data/
 result/
-fedavg/data
-fedavg/result
+method/fedavg/data
+method/fedavg/result
 
-fedala/data
-fedala/result
+method/fedala/data
+method/fedala/result
 
 
 tensorboard/

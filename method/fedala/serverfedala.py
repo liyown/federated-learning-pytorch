@@ -1,24 +1,20 @@
 import json
-import logging
-import threading
 import time
 
 import numpy as np
 import torch
 import torchvision
 import yaml
-from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from dataset.datasets.partitioned_cifar import PartitionCIFAR
-from fedala.ala import update_selected_clients_weights
-from fedala.clientfedala import create_clients
-from model.models import MnistCNN, Cifar10CNN, CNN2
-from utils.utils import transmit_model, update_selected_clients, average_model, launch_tensor_board, \
-    init_net, seed_torch
+from method.fedala.ala import update_selected_clients_weights
+from method.fedala.clientfedala import create_clients
+from model.models import MnistCNN, CNN2
+from utils.utils import transmit_model, update_selected_clients, average_model, init_net, seed_torch
 
 if __name__ == "__main__":
-    with open('../config.yaml', encoding="utf-8") as c:
+    with open('./config.yaml', encoding="utf-8") as c:
         configs = yaml.load(c, Loader=yaml.FullLoader)
 
     print(
@@ -50,7 +46,7 @@ if __name__ == "__main__":
     device = configs["client_config"]["device"]
 
     # 创建分割数据集及其类
-    PartitionCifar10 = PartitionCIFAR("../data", "./data", "cifar10",
+    PartitionCifar10 = PartitionCIFAR("../data", "data", "cifar10",
                                       configs["fed_config"]["num_clients"],
                                       download=True, preprocess=True,
                                       balance=True, partition="iid",
