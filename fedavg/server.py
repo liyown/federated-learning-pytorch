@@ -51,9 +51,9 @@ if __name__ == "__main__":
     PartitionCifar10 = PartitionCIFAR("../data", "./data", "cifar10",
                                       configs["fed_config"]["num_clients"],
                                       download=True, preprocess=True,
-                                      balance=None, partition="shards",
+                                      balance=None, partition="dirichlet",
                                       unbalance_sgm=0, num_shards=200,
-                                      dir_alpha=None,
+                                      dir_alpha=1,
                                       transform=torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
                                                                                 torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]),
                                       target_transform=None)
@@ -124,5 +124,5 @@ if __name__ == "__main__":
             \n\t=> Loss: {test_loss:.4f}\
             \n\t=> Accuracy: {100. * test_accuracy:.2f}%\n"
         print(message)
-    with open("./result/cifar10_fedavg_non-iid.json", encoding="utf-8", mode="w") as f:
+    with open("./result/cifar10_fedavg_dirichlet_1.json", encoding="utf-8", mode="w") as f:
         json.dump(results, f)

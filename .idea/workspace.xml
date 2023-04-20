@@ -8,20 +8,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="64432cb5-e60b-4ac5-b104-6586dd51daf1" name="变更" comment="">
+      <change afterPath="$PROJECT_DIR$/model/cnn.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fedavg/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedavg/client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fedavg/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/fedavg/server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard/Accuracy_Cifarala1 CIFAR10]_Cifar10CNN, IID_True/events.out.tfevents.1681811586.liyown.19492.2FL" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard/Accuracy_Cifarala1 CIFAR10]_Cifar10CNN, IID_True/events.out.tfevents.1681811990.liyown.3256.2FL" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard/Loss_Cifarala1 CIFAR10_Cifar10CNN ,IID_True/events.out.tfevents.1681811586.liyown.19492.1FL" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard/Loss_Cifarala1 CIFAR10_Cifar10CNN ,IID_True/events.out.tfevents.1681811990.liyown.3256.1FL" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard/events.out.tfevents.1681811560.liyown.19492.0FL" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard/events.out.tfevents.1681811682.liyown.18900.0FL" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard/events.out.tfevents.1681811965.liyown.3256.0FL" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard/events.out.tfevents.1681812115.liyown.20840.0FL" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tensorboard/events.out.tfevents.1681812836.liyown.20844.0FL" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -50,33 +40,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/gitee/python/Federated-Averaging-PyTorch/test&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;debugger.dataViews.python.type.renderers&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "last_opened_file_path": "D:/gitee/python/Federated-Averaging-PyTorch/model",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "debugger.dataViews.python.type.renderers"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\model" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\test" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\dataset\datasets" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\src" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\result" />
-      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\model" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\fedavg\result\balance" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\test" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\model" />
       <recent name="D:\gitee\python\Federated-Averaging-PyTorch\fedavg\result" />
-      <recent name="D:\gitee\python\Federated-Averaging-PyTorch\result" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.server">
+  <component name="RunManager" selected="Python.pictrue">
     <configuration name="localtrain" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Federated-Averaging-PyTorch" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -184,8 +174,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.server" />
         <item itemvalue="Python.pictrue" />
+        <item itemvalue="Python.server" />
         <item itemvalue="Python.models" />
         <item itemvalue="Python.utils" />
         <item itemvalue="Python.localtrain" />
@@ -257,7 +247,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/fedavg/result/pictrue.py</url>
-          <line>11</line>
+          <line>18</line>
           <option name="timeStamp" value="75" />
         </line-breakpoint>
       </breakpoints>

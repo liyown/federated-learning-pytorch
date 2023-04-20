@@ -20,7 +20,7 @@ client_config:
 fed_config:
   fraction: 0.1
   num_clients: 100
-  round: 100
+  round: 500
 init_config:
   init_type: kaiming
   init_gain: 1.0

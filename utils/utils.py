@@ -44,7 +44,7 @@ def update_selected_clients(select_client):
     selected_total_size = 0
     for client in tqdm(select_client, file=sys.stdout):
         client.client_update()
-        # client.client_evaluate()
+       # client.client_evaluate()
         selected_total_size += len(client)
     message = f"clients are selected and updated (with total sample size: {str(selected_total_size)})!"
     print(message)
