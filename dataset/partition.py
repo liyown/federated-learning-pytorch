@@ -46,7 +46,7 @@ class DataPartitioner(ABC):
 class CIFAR10Partitioner(DataPartitioner):
     """CIFAR10 data partitioner.
 
-    Partition CIFAR10 given specific client number. Currently 6 supported partition schemes can be
+    Partition CIFAR10 given specific client number. Currently, 6 supported partition schemes can be
     achieved by passing different combination of parameters in initialization:
 
     - ``balance=None``
@@ -99,15 +99,10 @@ class CIFAR10Partitioner(DataPartitioner):
 
     num_classes = 10
 
-    def __init__(self, targets, num_clients,
-                 balance=True, partition="iid",
-                 unbalance_sgm=0,
-                 num_shards=None,
-                 dir_alpha=None,
-                 verbose=True,
-                 min_require_size=None,
-                 seed=None):
+    def __init__(self, targets, num_clients, balance=True, partition="iid", unbalance_sgm=0, num_shards=None,
+                 dir_alpha=None, verbose=True, min_require_size=None, seed=None):
 
+        super().__init__()
         self.targets = np.array(targets)  # with shape (num_samples,)
         self.num_samples = self.targets.shape[0]
         self.num_clients = num_clients

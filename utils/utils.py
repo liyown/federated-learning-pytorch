@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn.init as init
-import yaml
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
@@ -139,7 +138,7 @@ def seed_torch(seed=3027):
 def draw(PartitionDataset: PartitionCIFAR, root):
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
     csv_dir = os.path.join(root,
-                           f"{PartitionDataset.dataname}_{PartitionDataset.num_clients}_{PartitionDataset.partitioner.partition}_{PartitionDataset.partitioner.balance}.csv")
+                           f"{PartitionDataset.dataName}_{PartitionDataset.num_clients}_{PartitionDataset.partitioner.partition}_{PartitionDataset.partitioner.balance}.csv")
     partition_report(PartitionDataset.train_datasets.targets, PartitionDataset.partitioner.client_dict,
                      class_num=np.unique(PartitionDataset.train_datasets.targets).shape[0],
                      verbose=False, file=csv_dir)
@@ -150,9 +149,34 @@ def draw(PartitionDataset: PartitionCIFAR, root):
     for col in col_names:
         hetero_dir_part_df[col] = (hetero_dir_part_df[col] * hetero_dir_part_df['Amount']).astype(int)
     plt_dir = os.path.join(root,
-                           f"{PartitionDataset.dataname}_{PartitionDataset.num_clients}_{PartitionDataset.partitioner.partition}_{PartitionDataset.partitioner.balance}.png")
+                           f"{PartitionDataset.dataName}_{PartitionDataset.num_clients}_{PartitionDataset.partitioner.partition}_{PartitionDataset.partitioner.balance}.png")
     hetero_dir_part_df[col_names].iloc[:10].plot.barh(stacked=True)
     plt.tight_layout()
     plt.xlabel('sample num')
     plt.savefig(plt_dir, dpi=400)
 
+
+class Evaluation(object):
+    """Evaluate the performance of the model on the test dataset."""
+    def __init__(self, model, test_dataloader, device):
+        self.model = model
+        self.test_dataloader = test_dataloader
+        self.device = device
+
+    def evaluate(self):
+        self.model.eval()
+        test_loss, correct = 0, 0
+        with torch.no_grad():
+            for data, labels in self.test_dataloader:
+                data, labels = data.float().to(self.device), labels.long().to(self.device)
+                outputs = self.model(data)
+                test_loss += torch.nn.CrossEntropyLoss()(outputs, labels).item()
+
+                predicted = outputs.argmax(dim=1, keepdim=True)
+                correct += predicted.eq(labels.view_as(predicted)).sum().item()
+                if self.device == "cuda":
+                    torch.cuda.empty_cache()
+        self.model.to("cpu")
+        test_loss = test_loss / len(self.test_dataloader)
+        test_accuracy = correct / (len(self.test_dataloader) * self.test_dataloader.batch_size)
+        return test_loss, test_accuracy

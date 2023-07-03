@@ -30,7 +30,7 @@ class PartitionCIFAR(FedDataset):
     Args:
         root (str): Path to download raw dataset.
         path (str): Path to save partitioned subdataset.
-        dataname (str): "cifar10" or "cifar100"
+        dataName (str): "cifar10" or "cifar100"
         num_clients (int): Number of clients.
         download (bool): Whether to download the raw dataset.
         preprocess (bool): Whether to preprocess the dataset.
@@ -42,13 +42,13 @@ class PartitionCIFAR(FedDataset):
         verbose (bool, optional): Whether to print partition process. Default as ``True``.
         seed (int, optional): Random seed. Default as ``None``.
         transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version.
-        target_transform (callable, optional): A function/transform that takes in the target and transforms it.
+        targetTransform (callable, optional): A function/transform that takes in the target and transforms it.
     """
 
     def __init__(self,
                  root,
                  path,
-                 dataname,
+                 dataName,
                  num_clients,
                  download=True,
                  preprocess=False,
@@ -60,16 +60,16 @@ class PartitionCIFAR(FedDataset):
                  verbose=True,
                  seed=None,
                  transform=None,
-                 target_transform=None) -> None:
+                 targetTransform=None) -> None:
         self.test_datasets = None
         self.train_datasets = None
         self.partitioner = None
-        self.dataname = dataname
+        self.dataName = dataName
         self.root = os.path.expanduser(root)
         self.path = path
         self.num_clients = num_clients
         self.transform = transform
-        self.targt_transform = target_transform
+        self.targetTransform = targetTransform
 
         if preprocess:
             self.preprocess(balance=balance,
@@ -94,22 +94,22 @@ class PartitionCIFAR(FedDataset):
 
         For details of partition schemes, please check `Federated Dataset and DataPartitioner <https://fedlab.readthedocs.io/en/master/tutorials/dataset_partition.html>`_.
         """
-        self.download = download
         if os.path.exists(self.path) is not True:
             os.mkdir(self.path)
             os.mkdir(os.path.join(self.path, "train"))
-            os.mkdir(os.path.join(self.path, "var"))
+            # os.mkdir(os.path.join(self.path, "var"))
             os.mkdir(os.path.join(self.path, "test"))
         # train dataset partitioning
-        if self.dataname == 'cifar10':
-            trainset = torchvision.datasets.CIFAR10(root=self.root,
-                                                    train=True,
-                                                    download=self.download)
+        if self.dataName == 'cifar10':
+            trainDataset = torchvision.datasets.CIFAR10(root=self.root,
+                                                        train=True,
+                                                        download=download)
 
-            testset = torchvision.datasets.CIFAR10(root=self.root,
-                                                   train=False, transform=self.transform, target_transform=self.targt_transform,
-                                                   download=self.download)
-            self.partitioner = CIFAR10Partitioner(trainset.targets,
+            testDataset = torchvision.datasets.CIFAR10(root=self.root,
+                                                       train=False, transform=self.transform,
+                                                       target_transform=self.targetTransform,
+                                                       download=download)
+            self.partitioner = CIFAR10Partitioner(trainDataset.targets,
                                                   self.num_clients,
                                                   balance=balance,
                                                   partition=partition,
@@ -118,15 +118,15 @@ class PartitionCIFAR(FedDataset):
                                                   dir_alpha=dir_alpha,
                                                   verbose=verbose,
                                                   seed=seed)
+            print()
 
-        elif self.dataname == 'cifar100':
-            trainset = torchvision.datasets.CIFAR100(root=self.root,
-                                                     train=True,
-                                                     download=self.download)
-            testset = torchvision.datasets.CIFAR100(root=self.root,
-                                                    train=False, transform=self.transform, target_transform=self.targt_transform,
-                                                    download=self.download)
-            self.partitioner = CIFAR100Partitioner(trainset.targets,
+        elif self.dataName == 'cifar100':
+            trainDataset = torchvision.datasets.CIFAR100(root=self.root, train=True, download=download)
+            testDataset = torchvision.datasets.CIFAR100(root=self.root,
+                                                        train=False, transform=self.transform,
+                                                        target_transform=self.targetTransform,
+                                                        download=download)
+            self.partitioner = CIFAR100Partitioner(trainDataset.targets,
                                                    self.num_clients,
                                                    balance=balance,
                                                    partition=partition,
@@ -137,17 +137,17 @@ class PartitionCIFAR(FedDataset):
                                                    seed=seed)
         else:
             raise ValueError(
-                f"'dataname'={self.dataname} currently is not supported. Only 'cifar10', and 'cifar100' are supported."
+                f"'dataName'={self.dataName} currently is not supported. Only 'cifar10', and 'cifar100' are supported."
             )
 
-        self.train_datasets = trainset
-        self.test_datasets = testset
+        self.train_datasets = trainDataset
+        self.test_datasets = testDataset
 
         subsets = {
-            cid: CIFARSubset(trainset,
+            cid: CIFARSubset(trainDataset,
                              self.partitioner.client_dict[cid],
                              transform=self.transform,
-                             target_transform=self.targt_transform)
+                             target_transform=self.targetTransform)
             for cid in range(self.num_clients)
         }
         for cid in subsets:
@@ -155,21 +155,18 @@ class PartitionCIFAR(FedDataset):
                 subsets[cid],
                 os.path.join(self.path, "train", "data{}.pkl".format(cid)))
 
-    def get_dataset(self, cid, type="train"):
-        """Load subdataset for client with client ID ``cid`` from local file.
-
+    def get_dataset(self, cid, type_="train"):
+        """Load sub-dataset for client with client ID ``cid`` from local file.
         Args:
              cid (int): client id
-             type (str, optional): Dataset type, can be ``"train"``, ``"val"`` or ``"test"``. Default as ``"train"``.
-
+             type_ (str, optional): Dataset type, can be ``"train"``, ``"val"`` or ``"test"``. Default as ``"train"``.
         Returns:
             Dataset
         """
         dataset = None
-        if type == "train":
-            dataset = torch.load(
-                os.path.join(self.path, type, "data{}.pkl".format(cid)))
-        elif type == "test":
+        if type_ == "train":
+            dataset = torch.load(os.path.join(self.path, type_, "data{}.pkl".format(cid)))
+        elif type_ == "test":
             # todo 每个客户端的测试集
             pass
         else:
@@ -178,26 +175,25 @@ class PartitionCIFAR(FedDataset):
 
         return dataset
 
-    def get_dataloader(self, cid=None, batch_size=None, type="train"):
+    def get_dataloader(self, cid=None, batch_size=None, type_="train"):
         """Return dataload for client with client ID ``cid``.
-
         Args:
             cid (int): client id
             batch_size (int, optional): batch size in DataLoader.
-            type (str, optional): Dataset type, can be ``"train"``, ``"val"`` or ``"test"``. Default as ``"train"``.
+            type_ (str, optional): Dataset type, can be ``"train"``, ``"val"`` or ``"test"``. Default as ``"train"``.
         """
         data_loader = None
         # 返回整体训练与测试集
         if cid is None:
-            if type == "test":
+            if type_ == "test":
                 return DataLoader(self.test_datasets, batch_size=batch_size)
-            elif type == "train":
+            elif type_ == "train":
                 return DataLoader(self.test_datasets, batch_size=batch_size, shuffle=True)
-        if type == "train":
-            dataset = self.get_dataset(cid, type)
+        if type_ == "train":
+            dataset = self.get_dataset(cid, type_)
             batch_size = len(dataset) if batch_size is None else batch_size
             data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-        elif type == "test":
+        elif type_ == "test":
             # todo 每个客户端的测试集
             pass
         else:

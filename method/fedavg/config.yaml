@@ -17,7 +17,6 @@ client_config:
   device: cuda
   batch_size: 50
   num_local_epochs: 5
-  criterion: torch.nn.CrossEntropyLoss
   lr: 0.05
   optimizer: torch.optim.SGD
   optim_config: {}
