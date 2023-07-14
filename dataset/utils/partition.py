@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from . import functional as F
+from dataset.utils import functional as F
 
 
 class DataPartitioner(ABC):

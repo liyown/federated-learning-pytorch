@@ -3,13 +3,5 @@ data/
 result/
 .idea/
 
-method/fedavg/data
-method/fedavg/result
-
-method/fedala/data
-method/fedala/result
-
-
-tensorboard/
-
-run.log
+fedavg/clientdata
+fedavg/result
