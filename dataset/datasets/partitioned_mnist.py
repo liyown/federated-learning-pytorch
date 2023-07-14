@@ -19,7 +19,7 @@ import torchvision
 from torch.utils.data import DataLoader
 
 from .basic_dataset import FedDataset, Subset
-from ..partition import MNISTPartitioner
+from dataset.utils.partition import MNISTPartitioner
 
 
 class PartitionedMNIST(FedDataset):

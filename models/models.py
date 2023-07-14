@@ -6,7 +6,6 @@ import torch.nn.functional as F
 # Models for federated learning #
 #################################
 # McMahan et al., 2016; 199,210 parameters
-from utils.utils import init_net
 
 
 class TwoNN(nn.Module):
@@ -150,5 +149,9 @@ class Cifar10CNN(nn.Module):
         x = self.fc2(x)
         return x
 
-
+if __name__ == '__main__':
+    models = Cifar10CNN()
+    a = torch.randn(1, 3, 32, 32)
+    models_1 = models.clone().detach().requires_grad_(True)
+    print()
 
