@@ -22,6 +22,7 @@ class Server:
         self.clients = Client.createClients(self.dataPartitioner, self.configs)
         self.evaluate = Evaluation()
 
+    @sendMail
     def train(self):
         """Train the global model using federated learning."""
         results = {"loss": [], "accuracy": []}
