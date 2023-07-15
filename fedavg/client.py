@@ -1,6 +1,8 @@
 import copy
 from collections import Counter
 import torch
+from torch.cuda.amp import autocast as autocast
+from torch.cuda import amp
 from models.models import Cifar10CNN
 
 
@@ -45,6 +47,12 @@ class Client(object):
             for data, labels in self.dataLoader:
                 data, labels = data.float().to(self.device), labels.long().to(self.device)
                 self.optimizer.zero_grad()
+                # with autocast():
+                #     outputs = self.model(data)
+                #     loss = self.criterion(outputs, labels)
+                # self.scaler.scale(loss).backward()
+                # self.scaler.step(self.optimizer)
+                # self.scaler.update()
                 outputs = self.model(data)
                 loss = self.criterion(outputs, labels)
                 loss.backward()
