@@ -26,7 +26,7 @@ def arg_parse():
     parser.add_argument("--dirAlpha", type=int, default=100)
 
     # client config
-    parser.add_argument("--model", type=str, default="Cifar10CNN", choices=["Cifar10CNN", "MnistCNN"])
+    parser.add_argument("--model", type=str, default="Cifar10CNN", choices=["Cifar10CNN", "MnistCNN", "resnet34"])
     parser.add_argument("--modelConfig", type=dict, default={})
     parser.add_argument("--device", type=str, default="cuda", choices=["cuda", "cpu"])
     parser.add_argument("--batchSize", type=int, default=32)
@@ -36,7 +36,7 @@ def arg_parse():
     # server config
     parser.add_argument("--fraction", type=float, default=0.1)
     parser.add_argument("--numClients", type=int, default=100)
-    parser.add_argument("--numGlobalEpochs", type=int, default=100)
+    parser.add_argument("--numGlobalEpochs", type=int, default=2)
 
     # init_config
     parser.add_argument("--initType", type=str, default="kaiming", choices=["xavier", "kaiming"])
@@ -49,7 +49,7 @@ def arg_parse():
 if __name__ == '__main__':
     configs = arg_parse()
     dataPartitioner = PartitionCIFAR(dataName=configs.datasetName, numClients=configs.numClients, download=True, preprocess=True,
-                                     balance=True, partition="iid", unbalance_sgm=0, num_shards=None, dir_alpha=None, verbose=True, seed=None,
+                                     balance=True, partition="iid", unbalance_sgm=0, numShards=None, dirAlpha=None, verbose=True, seed=None,
                                      transform=Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]), targetTransform=None)
     draw(dataPartitioner, "./result")
     federatedServer = Server(dataPartitioner, configs)

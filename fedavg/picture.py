@@ -2,7 +2,7 @@ import json
 import matplotlib.pyplot as plt
 
 # 从JSON文件中加载数据
-with open('data.json', 'r') as file:
+with open('./result/cifar10_dirichlet_100.json', 'r') as file:
     data = json.load(file)
 
 loss = data['loss']

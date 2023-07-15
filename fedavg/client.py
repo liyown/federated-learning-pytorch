@@ -3,7 +3,9 @@ from collections import Counter
 import torch
 from torch.cuda.amp import autocast as autocast
 from torch.cuda import amp
+
 from models.models import Cifar10CNN
+from models.ResNet import resnet18
 
 
 
@@ -15,11 +17,12 @@ class Client(object):
         self.configs = configs
         self.id = clientId
         self.model = eval(configs.model)(**configs.modelConfig)
-        self.dataLoader = DataPartition.get_dataloader(cid=self.id, batch_size=configs.batchSize, type_="train")
+        self.dataLoader = DataPartition.getDataloader(cid=self.id, batch_size=configs.batchSize, type_="train")
         self.localEpoch = configs.localEpochs
         self.criterion = torch.nn.CrossEntropyLoss()
         self.optimConfig = configs.optimConfig
         self.device = configs.device
+        self.scaler = amp.GradScaler()
 
     def __len__(self):
         """Return a total size of the client's local data."""
@@ -82,9 +85,9 @@ class Client(object):
     def createClients(DataPartition, configs):
         """Initialize each Client instance."""
         clients = []
-        for k in range(DataPartition.num_clients):
+        for k in range(DataPartition.numClients):
             client = Client(clientId=k, DataPartition=DataPartition, configs=configs)
             clients.append(client)
 
-        print(f"successfully created all {DataPartition.num_clients} clients!")
+        print(f"successfully created all {DataPartition.numClients} clients!")
         return clients

@@ -10,6 +10,7 @@ import torch
 import torch.nn.init as init
 import yagmail
 from matplotlib import pyplot as plt
+from torch.cuda.amp import autocast
 from tqdm import tqdm
 
 from dataset.datasets.partitioned_cifar import PartitionCIFAR
@@ -41,7 +42,7 @@ def seed_torch(seed=3027):
 def draw(PartitionDataset: PartitionCIFAR, root):
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
     csv_dir = os.path.join(root,
-                           f"{PartitionDataset.dataName}_{PartitionDataset.num_clients}_{PartitionDataset.partitioner.partition}_{PartitionDataset.partitioner.balance}.csv")
+                           f"{PartitionDataset.dataName}_{PartitionDataset.numClients}_{PartitionDataset.partitioner.partition}_{PartitionDataset.partitioner.balance}.csv")
     partition_report(PartitionDataset.trainDatasets.targets, PartitionDataset.partitioner.client_dict,
                      class_num=np.unique(PartitionDataset.trainDatasets.targets).shape[0],
                      verbose=False, file=csv_dir)
@@ -52,28 +53,11 @@ def draw(PartitionDataset: PartitionCIFAR, root):
     for col in col_names:
         hetero_dir_part_df[col] = (hetero_dir_part_df[col] * hetero_dir_part_df['Amount']).astype(int)
     plt_dir = os.path.join(root,
-                           f"{PartitionDataset.dataName}_{PartitionDataset.num_clients}_{PartitionDataset.partitioner.partition}_{PartitionDataset.partitioner.balance}.png")
+                           f"{PartitionDataset.dataName}_{PartitionDataset.numClients}_{PartitionDataset.partitioner.partition}_{PartitionDataset.partitioner.balance}.png")
     hetero_dir_part_df[col_names].iloc[:10].plot.barh(stacked=True)
     plt.tight_layout()
     plt.xlabel('sample num')
     plt.savefig(plt_dir, dpi=400)
-
-
-def printInformation(configs):
-    """Print the information of the experiment."""
-    print(
-        "\nid:{}dataset_name:{}--model:{}--optimizer:{}--lr:{}--num_clients:{}--fraction:{}--num_local_epochs:{}--batch_size:{}--record:{}\n".format(
-            configs["global_config"]["record_id"],
-            configs["data_config"]["dataset_name"],
-            configs["client_config"]["model"],
-            configs["client_config"]["optimizer"],
-            configs["client_config"]["lr"],
-            configs["fed_config"]["num_clients"],
-            configs["fed_config"]["fraction"],
-            configs["client_config"]["num_local_epochs"],
-            configs["client_config"]["batch_size"],
-            configs["global_config"]["record"]
-        ))
 
 
 class Evaluation(object):
@@ -91,8 +75,9 @@ class Evaluation(object):
         with torch.no_grad():
             for data, labels in self.testDataloader:
                 data, labels = data.float().to(self.device), labels.long().to(self.device)
-                outputs = self.model(data)
-                testLoss += torch.nn.CrossEntropyLoss()(outputs, labels).item()
+                with autocast():
+                    outputs = self.model(data)
+                    testLoss += torch.nn.CrossEntropyLoss()(outputs, labels).item()
                 predicted = outputs.argmax(dim=1, keepdim=True)
                 correct += predicted.eq(labels.view_as(predicted)).sum().item()
         self.model.to("cpu")

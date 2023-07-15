@@ -8,7 +8,8 @@ from tqdm import tqdm
 
 from client import Client
 from models.models import Cifar10CNN
-from utils.utils import Evaluation
+from models.ResNet import resnet18
+from utils.utils import Evaluation, sendMail
 
 
 class Server:
@@ -25,6 +26,7 @@ class Server:
     @sendMail
     def train(self):
         """Train the global model using federated learning."""
+        self.evaluate.testDataloader = self.dataPartitioner.getDataloader(cid=None, type_="test")
         results = {"loss": [], "accuracy": []}
         for epoch in range(self.configs.numGlobalEpochs):
             print(f"Global epoch: {epoch + 1}/{self.configs.numGlobalEpochs}")
@@ -32,8 +34,7 @@ class Server:
             self.transmitModel(selectClients)
             selectedTotalSize = self.updateSelectedClients(selectClients)
             self.averageModel(selectClients, selectedTotalSize)
-
-            self.evaluate.model, self.evaluate.testDataloader = self.globalModel, self.dataPartitioner.get_dataloader(cid=None, batch_size=self.configs.batchSize, type_="test")
+            self.evaluate.model = self.globalModel
             testLoss, testAccuracy = self.evaluate.evaluate()
             results['loss'].append(testLoss)
             results['accuracy'].append(testAccuracy)

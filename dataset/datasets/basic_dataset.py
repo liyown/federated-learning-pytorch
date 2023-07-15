@@ -119,7 +119,7 @@ class FedDataset(object):
             os.mkdir(os.path.join(self.path, "var"))
             os.mkdir(os.path.join(self.path, "test"))
 
-    def get_dataset(self, id, type="train"):
+    def getDataset(self, id, type="train"):
         """Get dataset class
 
         Args:
@@ -131,7 +131,7 @@ class FedDataset(object):
         """
         raise NotImplementedError()
 
-    def get_dataloader(self, id, batch_size, type="train"):
+    def getDataloader(self, id, batch_size, type="train"):
         """Get data loader"""
         raise NotImplementedError()
 

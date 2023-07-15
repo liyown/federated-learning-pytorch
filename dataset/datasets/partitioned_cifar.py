@@ -37,8 +37,8 @@ class PartitionCIFAR(FedDataset):
         balance (bool, optional): Balanced partition over all clients or not. Default as ``True``.
         partition (str, optional): Partition type, only ``"iid"``, ``shards``, ``"dirichlet"`` are supported. Default as ``"iid"``.
         unbalance_sgm (float, optional): Log-normal distribution variance for unbalanced data partition over clients. Default as ``0`` for balanced partition.
-        num_shards (int, optional): Number of shards in non-iid ``"shards"`` partition. Only works if ``partition="shards"``. Default as ``None``.
-        dir_alpha (float, optional): Dirichlet distribution parameter for non-iid partition. Only works if ``partition="dirichlet"``. Default as ``None``.
+        numShards (int, optional): Number of shards in non-iid ``"shards"`` partition. Only works if ``partition="shards"``. Default as ``None``.
+        dirAlpha (float, optional): Dirichlet distribution parameter for non-iid partition. Only works if ``partition="dirichlet"``. Default as ``None``.
         verbose (bool, optional): Whether to print partition process. Default as ``True``.
         seed (int, optional): Random seed. Default as ``None``.
         transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version.
@@ -55,8 +55,8 @@ class PartitionCIFAR(FedDataset):
                  balance=True,
                  partition="iid",
                  unbalance_sgm=0,
-                 num_shards=None,
-                 dir_alpha=None,
+                 numShards=None,
+                 dirAlpha=None,
                  verbose=True,
                  seed=None,
                  transform=None,
@@ -65,7 +65,7 @@ class PartitionCIFAR(FedDataset):
         self.dataName = dataName
         self.root = os.path.expanduser(root)
         self.path = path
-        self.num_clients = numClients
+        self.numClients = numClients
         self.transform = transform
         self.targetTransform = targetTransform
 
@@ -81,8 +81,8 @@ class PartitionCIFAR(FedDataset):
             self.preprocess(balance=balance,
                             partition=partition,
                             unbalance_sgm=unbalance_sgm,
-                            num_shards=num_shards,
-                            dir_alpha=dir_alpha,
+                            num_shards=numShards,
+                            dir_alpha=dirAlpha,
                             verbose=verbose,
                             seed=seed,
                             download=download)
@@ -108,7 +108,7 @@ class PartitionCIFAR(FedDataset):
         # train dataset partitioning
         if self.dataName == 'cifar10':
             self.partitioner = CIFAR10Partitioner(self.trainDatasets.targets,
-                                                  self.num_clients,
+                                                  self.numClients,
                                                   balance=balance,
                                                   partition=partition,
                                                   unbalance_sgm=unbalance_sgm,
@@ -118,7 +118,7 @@ class PartitionCIFAR(FedDataset):
                                                   seed=seed)
         elif self.dataName == 'cifar100':
             self.partitioner = CIFAR100Partitioner(self.trainDatasets.targets,
-                                                   self.num_clients,
+                                                   self.numClients,
                                                    balance=balance,
                                                    partition=partition,
                                                    unbalance_sgm=unbalance_sgm,
@@ -136,14 +136,14 @@ class PartitionCIFAR(FedDataset):
                              self.partitioner.client_dict[cid],
                              transform=self.transform,
                              target_transform=self.targetTransform)
-            for cid in range(self.num_clients)
+            for cid in range(self.numClients)
         }
         for cid in subsets:
             torch.save(
                 subsets[cid],
                 os.path.join(self.path, "train", "data{}.pkl".format(cid)))
 
-    def get_dataset(self, cid, type_="train"):
+    def getDataset(self, cid, type_="train"):
         """Load sub-dataset for client with client ID ``cid`` from local file.
         Args:
              cid (int): client id
@@ -163,7 +163,7 @@ class PartitionCIFAR(FedDataset):
 
         return dataset
 
-    def get_dataloader(self, cid=None, batch_size=None, type_="train"):
+    def getDataloader(self, cid=None, batch_size=None, type_="train"):
         """Return dataload for client with client ID ``cid``.
         Args:
             cid (int): client id
@@ -178,7 +178,7 @@ class PartitionCIFAR(FedDataset):
             elif type_ == "train":
                 return DataLoader(self.trainDatasets, batch_size=batch_size, pin_memory=True, shuffle=True)
         if type_ == "train":
-            dataset = self.get_dataset(cid, type_)
+            dataset = self.getDataset(cid, type_)
             batch_size = len(dataset) if batch_size is None else batch_size
             data_loader = DataLoader(dataset, batch_size=batch_size, pin_memory=True, shuffle=True)
         elif type_ == "test":
