@@ -4,9 +4,8 @@ import torch
 from torch.cuda.amp import autocast as autocast
 from torch.cuda import amp
 
-from models.models import Cifar10CNN
+from models.models import Cifar10CNN, CnnWithEncoder
 from models.ResNet import resnet18
-
 
 
 class Client(object):
@@ -23,6 +22,7 @@ class Client(object):
         self.optimConfig = configs.optimConfig
         self.device = configs.device
         self.scaler = amp.GradScaler()
+        self.optimizer = eval(self.configs.optimizer)(self.model.parameters(), **self.optimConfig)
 
     def __len__(self):
         """Return a total size of the client's local data."""
@@ -37,7 +37,7 @@ class Client(object):
         return counter
 
     def learningRateDecay(self):
-        self.optimizer = eval(self.configs.optimizer)(self.model.parameters(), **self.optimConfig)
+
         pass
         # TODO: add learning rate decay
 
@@ -45,21 +45,18 @@ class Client(object):
         """Update local model using local dataset."""
         self.model.train()
         self.model.to(self.device)
-        self.learningRateDecay()
+        # self.learningRateDecay()
         for e in range(self.localEpoch):
             for data, labels in self.dataLoader:
                 data, labels = data.float().to(self.device), labels.long().to(self.device)
                 self.optimizer.zero_grad()
-                # with autocast():
-                #     outputs = self.model(data)
-                #     loss = self.criterion(outputs, labels)
-                # self.scaler.scale(loss).backward()
-                # self.scaler.step(self.optimizer)
-                # self.scaler.update()
-                outputs = self.model(data)
+                outputs, labels = self.model(data, labels, isTrain=True)
                 loss = self.criterion(outputs, labels)
                 loss.backward()
                 self.optimizer.step()
+        # 如果是cuda，清理缓存
+        if self.device == "cuda":
+            torch.cuda.empty_cache()
         self.model.to("cpu")
 
     def clientEvaluate(self):

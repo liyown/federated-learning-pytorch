@@ -6,8 +6,8 @@ import numpy as np
 from torch.nn import init
 from tqdm import tqdm
 
-from client import Client
-from models.models import Cifar10CNN
+from .client import Client
+from models.models import Cifar10CNN, CnnWithEncoder
 from models.ResNet import resnet18
 from utils.utils import Evaluation, sendMail
 
@@ -26,7 +26,7 @@ class Server:
     @sendMail
     def train(self):
         """Train the global model using federated learning."""
-        self.evaluate.testDataloader = self.dataPartitioner.getDataloader(cid=None, type_="test")
+        self.evaluate.testDataloader = self.dataPartitioner.getDataloader(cid=None, batch_size=32, type_="test")
         results = {"loss": [], "accuracy": []}
         for epoch in range(self.configs.numGlobalEpochs):
             print(f"Global epoch: {epoch + 1}/{self.configs.numGlobalEpochs}")
@@ -51,7 +51,7 @@ class Server:
     def transmitModel(self, selectClient):
         """Send the updated global model to selected/all clients."""
         for client in selectClient:
-            client.model = copy.deepcopy(self.globalModel)
+            client.model.load_state_dict(self.globalModel.state_dict())
 
     def updateSelectedClients(self, selectClients):
         """Call "client_update" function of each selected client."""

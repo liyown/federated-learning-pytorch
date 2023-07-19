@@ -174,9 +174,9 @@ class PartitionCIFAR(FedDataset):
         # 返回整体训练与测试集
         if cid is None:
             if type_ == "test":
-                return DataLoader(self.testDatasets, batch_size=len(self.testDatasets) if batch_size is None else batch_size, pin_memory=True)
+                return DataLoader(self.testDatasets, batch_size=len(self.testDatasets) if batch_size is None else batch_size)
             elif type_ == "train":
-                return DataLoader(self.trainDatasets, batch_size=batch_size, pin_memory=True, shuffle=True)
+                return DataLoader(self.trainDatasets, batch_size=batch_size, shuffle=True)
         if type_ == "train":
             dataset = self.getDataset(cid, type_)
             batch_size = len(dataset) if batch_size is None else batch_size

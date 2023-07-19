@@ -75,11 +75,17 @@ class Evaluation(object):
         with torch.no_grad():
             for data, labels in self.testDataloader:
                 data, labels = data.float().to(self.device), labels.long().to(self.device)
-                with autocast():
-                    outputs = self.model(data)
+                if self.model.__class__.__name__ == "CnnWithEncoder":
+                    outputs, labels = self.model(data, labels, isTrain=False)
+                    testLoss += torch.nn.CrossEntropyLoss()(outputs, labels).item()
+                else:
+                    outputs, labels = self.model(data, labels, isTrain=False)
                     testLoss += torch.nn.CrossEntropyLoss()(outputs, labels).item()
                 predicted = outputs.argmax(dim=1, keepdim=True)
                 correct += predicted.eq(labels.view_as(predicted)).sum().item()
+            # 如果设备是cuda，清理缓存
+            if self.device == "cuda":
+                torch.cuda.empty_cache()
         self.model.to("cpu")
         testLoss = testLoss / len(self.testDataloader)
         testAccuracy = correct / (len(self.testDataloader) * self.testDataloader.batch_size)
