@@ -6,7 +6,7 @@ import torch
 from torchvision.transforms import Normalize, ToTensor, Compose
 
 from dataset.datasets.partitioned_cifar import PartitionCIFAR
-from fedavg.server import Server
+from fedavg.server import Server, FedavgServer
 from models.models import Cifar10CNN
 from utils.utils import draw
 
@@ -53,14 +53,14 @@ def run():
 
     configs = arg_parse()
     dataPartitioner = PartitionCIFAR(dataName=configs.datasetName, numClients=configs.numClients, download=True,
-                                     preprocess=True,
+                                     preprocess=False,
                                      balance=True, partition="iid", unbalance_sgm=0, numShards=None, dirAlpha=None,
                                      verbose=True, seed=None,
                                      transform=Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]),
                                      targetTransform=None)
     # draw(dataPartitioner, "./result")
     print("avg")
-    federatedServer = Server(dataPartitioner, configs)
+    federatedServer = FedavgServer(dataPartitioner, configs)
     results = federatedServer.train()
     with open("result/{0}.json".format(configs.recordId), encoding="utf-8", mode="w") as f:
         json.dump(results, f)

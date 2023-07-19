@@ -60,47 +60,41 @@ def draw(PartitionDataset: PartitionCIFAR, root):
     plt.savefig(plt_dir, dpi=400)
 
 
-class Evaluation(object):
-    """Evaluate the performance of the model on the test dataset."""
-
-    def __init__(self, model=None, testDataloader=None, device="cuda"):
-        self.model = model
-        self.testDataloader = testDataloader
-        self.device = device
-
-    def evaluate(self, printFlag=True):
-        self.model.eval()
-        self.model.to(self.device)
-        testLoss, correct = 0, 0
-        with torch.no_grad():
-            for data, labels in self.testDataloader:
-                data, labels = data.float().to(self.device), labels.long().to(self.device)
-                if self.model.__class__.__name__ == "CnnWithEncoder":
-                    outputs, labels = self.model(data, labels, isTrain=False)
-                    testLoss += torch.nn.CrossEntropyLoss()(outputs, labels).item()
-                else:
-                    outputs, labels = self.model(data, labels, isTrain=False)
-                    testLoss += torch.nn.CrossEntropyLoss()(outputs, labels).item()
-                predicted = outputs.argmax(dim=1, keepdim=True)
-                correct += predicted.eq(labels.view_as(predicted)).sum().item()
-            # 如果设备是cuda，清理缓存
-            if self.device == "cuda":
-                torch.cuda.empty_cache()
-        self.model.to("cpu")
-        testLoss = testLoss / len(self.testDataloader)
-        testAccuracy = correct / (len(self.testDataloader) * self.testDataloader.batch_size)
-        if printFlag:
-            print('\nTest set: Average loss: {:.4f}, Accuracy: {:.4f}\n'.format(testLoss, testAccuracy))
-        return testLoss, testAccuracy
+def evaluate(self, model, testDataloader, device="cuda", printFlag=True):
+    self.model.eval()
+    self.model.to(self.device)
+    testLoss, correct = 0, 0
+    with torch.no_grad():
+        for data, labels in self.testDataloader:
+            data, labels = data.float().to(self.device), labels.long().to(self.device)
+            if self.model.__class__.__name__ == "CnnWithEncoder":
+                outputs, labels = self.model(data, labels, isTrain=False)
+                testLoss += torch.nn.CrossEntropyLoss()(outputs, labels).item()
+            else:
+                outputs, labels = self.model(data, labels, isTrain=False)
+                testLoss += torch.nn.CrossEntropyLoss()(outputs, labels).item()
+            predicted = outputs.argmax(dim=1, keepdim=True)
+            correct += predicted.eq(labels.view_as(predicted)).sum().item()
+        # 如果设备是cuda，清理缓存
+        if self.device == "cuda":
+            torch.cuda.empty_cache()
+    self.model.to("cpu")
+    testLoss = testLoss / len(self.testDataloader)
+    testAccuracy = correct / (len(self.testDataloader) * self.testDataloader.batch_size)
+    if printFlag:
+        print('\nTest set: Average loss: {:.4f}, Accuracy: {:.4f}\n'.format(testLoss, testAccuracy))
+    return testLoss, testAccuracy
 
 
 def sendMail(func):
     """Send the results to the specified mailbox."""
+
     def wrapper(*args, **kwargs):
         result = func(*args, **kwargs)
         contents = [f"Test Loss: {result['loss'][-1]}", f"Test Accuracy: {result['accuracy'][-1]}"]
-        yagmail.SMTP(user="liuyaowen_smile@126.com", password='BWLALEHLTNVNWLHX', host='smtp.126.com').send(to='1536727925@qq.com', subject='Send', contents=contents)
+        yagmail.SMTP(user="liuyaowen_smile@126.com", password='BWLALEHLTNVNWLHX', host='smtp.126.com').send(
+            to='1536727925@qq.com', subject='Send', contents=contents)
         print("Mail Send successfully!")
         return result
-    return wrapper
 
+    return wrapper

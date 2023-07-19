@@ -1,43 +1,14 @@
-import copy
-from collections import Counter
 import torch
-from torch.cuda.amp import autocast as autocast
-from torch.cuda import amp
-
-from models.models import Cifar10CNN, CnnWithEncoder
-from models.ResNet import resnet18
+from abstractclass.client import Client
+from models.models import *
 
 
-class Client(object):
-
-    def __init__(self, clientId, DataPartition, configs):
+class FedavgClient(Client):
+    def __init__(self, clientId, dataPartition, configs):
         """Client object is initiated by the center server."""
-        self.optimizer = None
-        self.configs = configs
-        self.id = clientId
-        self.model = eval(configs.model)(**configs.modelConfig)
-        self.dataLoader = DataPartition.getDataloader(cid=self.id, batch_size=configs.batchSize, type_="train")
-        self.localEpoch = configs.localEpochs
-        self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimConfig = configs.optimConfig
-        self.device = configs.device
-        self.scaler = amp.GradScaler()
-        self.optimizer = eval(self.configs.optimizer)(self.model.parameters(), **self.optimConfig)
-
-    def __len__(self):
-        """Return a total size of the client's local data."""
-        return len(self.dataLoader) * self.dataLoader.batch_size
-
-    def dataDistribute(self):
-        # 统计每个标签的数量
-        counter = Counter()
-        for batch in self.dataLoader:
-            _, labels = batch
-            counter.update(labels.tolist())
-        return counter
+        super().__init__(clientId, dataPartition, configs)
 
     def learningRateDecay(self):
-
         pass
         # TODO: add learning rate decay
 
@@ -45,7 +16,6 @@ class Client(object):
         """Update local model using local dataset."""
         self.model.train()
         self.model.to(self.device)
-        # self.learningRateDecay()
         for e in range(self.localEpoch):
             for data, labels in self.dataLoader:
                 data, labels = data.float().to(self.device), labels.long().to(self.device)
@@ -78,13 +48,3 @@ class Client(object):
         print(message)
         return test_loss, test_accuracy
 
-    @staticmethod
-    def createClients(DataPartition, configs):
-        """Initialize each Client instance."""
-        clients = []
-        for k in range(DataPartition.numClients):
-            client = Client(clientId=k, DataPartition=DataPartition, configs=configs)
-            clients.append(client)
-
-        print(f"successfully created all {DataPartition.numClients} clients!")
-        return clients

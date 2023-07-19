@@ -8,6 +8,8 @@ import torchvision
 from torch.utils.data import DataLoader
 from torchvision.transforms import transforms, Compose, Normalize, ToTensor
 
+from .ResNet import *
+from .VGG import *
 
 #################################
 # Models for federated learning #
