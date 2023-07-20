@@ -1,10 +1,10 @@
 import argparse
 import json
 
-import torch
 from torchvision.transforms import Normalize, ToTensor, Compose
+
 from dataset.datasets.partitioned_cifar import PartitionCIFAR
-from fedtransfermer.server import Server
+from fedtransfermer.server import FedBatchServer
 
 
 def arg_parse():
@@ -58,7 +58,7 @@ def run():
                                      targetTransform=None)
     # draw(dataPartitioner, "./result")
     print("transformer")
-    federatedServer = Server(dataPartitioner, configs)
+    federatedServer = FedBatchServer(dataPartitioner, configs)
     results = federatedServer.train()
     with open("result/{0}.json".format(configs.recordId), encoding="utf-8", mode="w") as f:
         json.dump(results, f)

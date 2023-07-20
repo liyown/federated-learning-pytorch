@@ -2,18 +2,14 @@ import copy
 import json
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import torchvision
 from torch.utils.data import DataLoader
-from torchvision.transforms import transforms, Compose, Normalize, ToTensor
+from torchvision.transforms import Compose, Normalize, ToTensor
 
 from .ResNet import *
 from .VGG import *
 
-#################################
-# Models for federated learning #
-#################################
+
 # McMahan et al., 2016; 1,663,370 parameters
 class CNN(nn.Module):
     def __init__(self, name, in_channels, hidden_channels, num_hiddens, num_classes):
@@ -85,7 +81,8 @@ class Cifar10CNN(nn.Module):
             nn.ReLU(),
             # nn.Dropout(0.2),
             nn.Linear(512, 10))
-        self.encoderLayer = nn.TransformerEncoderLayer(d_model=32 * 8 * 8, nhead=4, dim_feedforward=32 * 8 * 8, dropout=0.2)
+        self.encoderLayer = nn.TransformerEncoderLayer(d_model=32 * 8 * 8, nhead=4, dim_feedforward=32 * 8 * 8,
+                                                       dropout=0.2)
 
     def batchFormer(self, x, y, isTrain):
         if not isTrain:
@@ -111,7 +108,8 @@ class CnnWithEncoder(nn.Module):
         self.cnnOnlyFeature = eval(backbone)().features
         self.cnnOnlyFeatureWithNoneGrad = copy.deepcopy(self.cnnOnlyFeature)
         self.cnnOnlyClassifier = eval(backbone)().classifier
-        self.encoderLayer = nn.TransformerEncoderLayer(d_model=feature_dim, nhead=4, dim_feedforward=feature_dim, dropout=0.2)
+        self.encoderLayer = nn.TransformerEncoderLayer(d_model=feature_dim, nhead=4, dim_feedforward=feature_dim,
+                                                       dropout=0.2)
 
     def batchFormer(self, x, y, isTrain):
         if not isTrain:
@@ -126,7 +124,6 @@ class CnnWithEncoder(nn.Module):
         if not isTrain:
             x = self.cnnOnlyFeature(x)
             x = self.flatten(x)
-            # x = self.encoderLayer(x.unsqueeze(1)).squeeze(1)
             x = self.cnnOnlyClassifier(x)
             return x, y
         self.cnnOnlyFeatureWithNoneGrad = copy.deepcopy(self.cnnOnlyFeature)
@@ -144,8 +141,10 @@ class CnnWithEncoder(nn.Module):
 if __name__ == '__main__':
     models = CnnWithEncoder("Cifar10CNN", 32 * 8 * 8).to("cuda")
     # models = Cifar10CNN().to("cuda")
-    dataset = torchvision.datasets.CIFAR10(root='../data', train=True, download=True, transform=Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]))
-    testset = torchvision.datasets.CIFAR10(root='../data', train=False, download=True, transform=Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]))
+    dataset = torchvision.datasets.CIFAR10(root='../data', train=True, download=True,
+                                           transform=Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]))
+    testset = torchvision.datasets.CIFAR10(root='../data', train=False, download=True,
+                                           transform=Compose([ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]))
     trainDataloader = DataLoader(dataset, batch_size=32, shuffle=True, pin_memory=True)
     testDataloader = DataLoader(testset, batch_size=32, shuffle=False, pin_memory=True)
 
@@ -183,5 +182,3 @@ if __name__ == '__main__':
         result.append({"epoch": e, "train_loss": loss.item(), "train_acc": acc / (len(testset))})
         with open("result_encoder11.json", "w") as f:
             json.dump(result, f)
-
-

@@ -1,33 +1,12 @@
-from collections import Counter
 import torch
-from models.models import CnnWithEncoder
+
+from abstractclass.client import Client
 
 
-class Client(object):
-
+class FedBatchClient(Client):
     def __init__(self, clientId, DataPartition, configs):
         """Client object is initiated by the center server."""
-        self.configs = configs
-        self.id = clientId
-        self.model = eval(configs.model)(**configs.modelConfig)
-        self.dataLoader = DataPartition.getDataloader(cid=self.id, batch_size=configs.batchSize, type_="train")
-        self.localEpoch = configs.localEpochs
-        self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimConfig = configs.optimConfig
-        self.device = configs.device
-        self.optimizer = eval(self.configs.optimizer)(self.model.parameters(), **self.optimConfig)
-
-    def __len__(self):
-        """Return a total size of the client's local data."""
-        return len(self.dataLoader) * self.dataLoader.batch_size
-
-    def dataDistribute(self):
-        # 统计每个标签的数量
-        counter = Counter()
-        for batch in self.dataLoader:
-            _, labels = batch
-            counter.update(labels.tolist())
-        return counter
+        super().__init__(clientId, DataPartition, configs)
 
     def learningRateDecay(self):
         pass
@@ -52,7 +31,6 @@ class Client(object):
             torch.cuda.empty_cache()
         self.model.to("cpu")
 
-
     def clientEvaluate(self):
         """Evaluate local model using local dataset (same as training set for convenience)."""
         self.model.eval()
@@ -71,14 +49,3 @@ class Client(object):
         message = f"\t[Client {str(self.id).zfill(4)}] evaluation!\t=> Test loss: {test_loss:.4f}\t=> Test accuracy: {100. * test_accuracy:.2f}%"
         print(message)
         return test_loss, test_accuracy
-
-    @staticmethod
-    def createClients(DataPartition, configs):
-        """Initialize each Client instance."""
-        clients = []
-        for k in range(DataPartition.numClients):
-            client = Client(clientId=k, DataPartition=DataPartition, configs=configs)
-            clients.append(client)
-
-        print(f"successfully created all {DataPartition.numClients} clients!")
-        return clients
