@@ -138,6 +138,30 @@ class CnnWithEncoder(nn.Module):
         return x, y
 
 
+class CnnWithFusion(nn.Module):
+    def __init__(self, backbone=None, feature_dim=32 * 8 * 8):
+        super(CnnWithFusion, self).__init__()
+        self.flatten = nn.Flatten()
+        self.feature = eval(backbone)().features
+        self.featureWithNoneGrad = copy.deepcopy(self.feature)
+        self.classifier = eval(backbone)().classifier
+        self.featureFusion = nn.Conv2d(in_channels=32 * 2, out_channels=32, kernel_size=1, stride=1, padding=0)
+
+    def setRefer(self):
+        self.featureWithNoneGrad = copy.deepcopy(self.feature)
+        for param in self.featureWithNoneGrad.parameters():
+            param.requires_grad = False
+
+    def forward(self, x, y, isTrain=True):
+        self.setRefer()
+        x, x_g = self.feature(x), self.featureWithNoneGrad(x)
+        x = torch.cat([x, x_g], dim=1)
+        x = self.featureFusion(x)
+        x = self.flatten(x)
+        x = self.classifier(x)
+        return x, y
+
+
 if __name__ == '__main__':
     models = CnnWithEncoder("Cifar10CNN", 32 * 8 * 8).to("cuda")
     # models = Cifar10CNN().to("cuda")
