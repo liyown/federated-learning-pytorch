@@ -24,8 +24,8 @@ def arg_parse():
     parser.add_argument("--dirAlpha", type=int, default=100)
 
     # client config
-    parser.add_argument("--model", type=str, default="CnnWithEncoder",
-                        choices=["Cifar10CNN", "MnistCNN", "CnnWithEncoder"])
+    parser.add_argument("--model", type=str, default="CnnWithFusion",
+                        choices=["Cifar10CNN", "MnistCNN", "CnnWithEncoder", "CnnWithFusion"])
     parser.add_argument("--modelConfig", type=dict, default={"backbone": "Cifar10CNN", "feature_dim": 32 * 8 * 8})
     parser.add_argument("--device", type=str, default="cuda", choices=["cuda", "cpu"])
     parser.add_argument("--batchSize", type=int, default=32)

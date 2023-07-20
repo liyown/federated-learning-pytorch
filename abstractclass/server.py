@@ -1,16 +1,13 @@
-import sys
-from abc import ABC, abstractmethod, abstractproperty, abstractclassmethod, abstractstaticmethod, ABCMeta
+from abc import ABC, abstractmethod
 from collections import OrderedDict
+
 import numpy as np
 from torch.nn import init
 from tqdm import tqdm
-from abstractclass.client import Client
-from models.models import *
 
 
 class Server(ABC):
-    allClients = None
-
+    """Abstract class for the server."""
     def __init__(self, dataPartitioner, configs):
         """Initialize the server with the given configurations."""
         self.dataPartitioner = dataPartitioner
@@ -19,6 +16,7 @@ class Server(ABC):
                                                  init_type=self.configs.initType,
                                                  init_gain=self.configs.initSeed)
         self.selectClients = None
+        self.allClients = None
 
     @abstractmethod
     def train(self):
@@ -38,6 +36,11 @@ class Server(ABC):
         """
             由于模型的定义不同，无法在抽象类中定义evaluate函数，因此在子类中定义
         """
+        pass
+
+    @abstractmethod
+    def createClients(self, dataPartition, configs):
+        """Initialize each Client instance."""
         pass
 
     def averageModel(self, selectedTotalSize):

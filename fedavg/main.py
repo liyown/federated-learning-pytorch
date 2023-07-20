@@ -1,14 +1,10 @@
 import argparse
 import json
-import os
 
-import torch
 from torchvision.transforms import Normalize, ToTensor, Compose
 
 from dataset.datasets.partitioned_cifar import PartitionCIFAR
-from fedavg.server import Server, FedavgServer
-from models.models import Cifar10CNN
-from utils.utils import draw
+from fedavg.server import FedavgServer
 
 
 def arg_parse():
@@ -28,7 +24,7 @@ def arg_parse():
     parser.add_argument("--dirAlpha", type=int, default=100)
 
     # client config
-    parser.add_argument("--model", type=str, default="Cifar10CNN", choices=["Cifar10CNN", "MnistCNN", "CnnWithEncoder"])
+    parser.add_argument("--model", type=str, default="Cifar10CNN", choices=["Cifar10CNN", "MnistCNN"])
     parser.add_argument("--modelConfig", type=dict, default={})
     parser.add_argument("--device", type=str, default="cuda", choices=["cuda", "cpu"])
     parser.add_argument("--batchSize", type=int, default=32)
@@ -50,7 +46,6 @@ def arg_parse():
 
 
 def run():
-
     configs = arg_parse()
     dataPartitioner = PartitionCIFAR(dataName=configs.datasetName, numClients=configs.numClients, download=True,
                                      preprocess=False,

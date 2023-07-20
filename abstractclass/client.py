@@ -1,10 +1,11 @@
-from abc import ABC, abstractmethod, abstractproperty, abstractclassmethod, abstractstaticmethod, ABCMeta
+from abc import ABC, abstractmethod
 from collections import Counter
-import torch
+
 from models.models import *
 
 
 class Client(ABC):
+    """Abstract class for all clients."""
     def __init__(self, clientId, dataPartition, configs):
         """Client object is initiated by the center server."""
         self.configs = configs
@@ -43,13 +44,3 @@ class Client(ABC):
             _, labels = batch
             counter.update(labels.tolist())
         return counter
-
-    @staticmethod
-    def createClients(Client_, dataPartition, configs):
-        """Initialize each Client instance."""
-        clients = []
-        for k in range(dataPartition.numClients):
-            client = Client_(clientId=k, dataPartition=dataPartition, configs=configs)
-            clients.append(client)
-        print(f"successfully created all {dataPartition.numClients} clients!")
-        return clients
