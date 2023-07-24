@@ -42,9 +42,9 @@ class PartitionedMNIST(FedDataset):
     """
 
     def __init__(self,
-                 root,
-                 path,
                  num_clients,
+                 root="../data",
+                 path="./clientdata",
                  download=True,
                  preprocess=False,
                  partition="iid",
@@ -58,7 +58,15 @@ class PartitionedMNIST(FedDataset):
         self.path = path
         self.num_clients = num_clients
         self.transform = transform
-        self.targt_transform = target_transform
+        self.targetTransform = target_transform
+
+        self.trainDatasets = torchvision.datasets.MNIST(root=self.root,
+                                                        train=True,
+                                                        download=download)
+        self.testDatasets = torchvision.datasets.MNIST(root=self.root,
+                                                       train=False, transform=self.transform,
+                                                       target_transform=self.targetTransform,
+                                                       download=download)
 
         if preprocess:
             self.preprocess(partition=partition,
@@ -86,14 +94,10 @@ class PartitionedMNIST(FedDataset):
         if os.path.exists(self.path) is not True:
             os.mkdir(self.path)
             os.mkdir(os.path.join(self.path, "train"))
-            os.mkdir(os.path.join(self.path, "var"))
-            os.mkdir(os.path.join(self.path, "test"))
+            # os.mkdir(os.path.join(self.path, "var"))
+            # os.mkdir(os.path.join(self.path, "test"))
 
-        trainset = torchvision.datasets.MNIST(root=self.root,
-                                              train=True,
-                                              download=download)
-
-        partitioner = MNISTPartitioner(trainset.targets,
+        partitioner = MNISTPartitioner(self.trainDatasets.targets,
                                        self.num_clients,
                                        partition=partition,
                                        dir_alpha=dir_alpha,
@@ -102,7 +106,7 @@ class PartitionedMNIST(FedDataset):
 
         # partition
         subsets = {
-            cid: Subset(trainset,
+            cid: Subset(self.trainDatasets.targets,
                         partitioner.client_dict[cid],
                         transform=transform,
                         target_transform=target_transform)
@@ -113,7 +117,7 @@ class PartitionedMNIST(FedDataset):
                 subsets[cid],
                 os.path.join(self.path, "train", "data{}.pkl".format(cid)))
 
-    def getDataset(self, cid, type="train"):
+    def getDataset(self, cid, type_="train"):
         """Load subdataset for client with client ID ``cid`` from local file.
 
         Args:
@@ -123,11 +127,19 @@ class PartitionedMNIST(FedDataset):
         Returns:
             Dataset
         """
-        dataset = torch.load(
-            os.path.join(self.path, type, "data{}.pkl".format(cid)))
+        dataset = None
+        if type_ == "train":
+            dataset = torch.load(os.path.join(self.path, type_, "data{}.pkl".format(cid)))
+        elif type_ == "test":
+            # todo 每个客户端的测试集
+            pass
+        else:
+            pass
+            # TODO 验证集
+
         return dataset
 
-    def getDataloader(self, cid, batch_size=None, type="train"):
+    def getDataloader(self, cid=None, batch_size=None, type_="train"):
         """Return dataload for client with client ID ``cid``.
 
         Args:
@@ -135,7 +147,23 @@ class PartitionedMNIST(FedDataset):
             batch_size (int, optional): batch size in DataLoader.
             type (str, optional): Dataset type, can be ``"train"``, ``"val"`` or ``"test"``. Default as ``"train"``.
         """
-        dataset = self.getDataset(cid, type)
-        batch_size = len(dataset) if batch_size is None else batch_size
-        data_loader = DataLoader(dataset, batch_size=batch_size)
+        data_loader = None
+        # 返回整体训练与测试集
+        if cid is None:
+            if type_ == "test":
+                return DataLoader(self.testDatasets,
+                                  batch_size=len(self.testDatasets) if batch_size is None else batch_size)
+            elif type_ == "train":
+                return DataLoader(self.trainDatasets, batch_size=batch_size, shuffle=True)
+        if type_ == "train":
+            dataset = self.getDataset(cid, type_)
+            batch_size = len(dataset) if batch_size is None else batch_size
+            data_loader = DataLoader(dataset, batch_size=batch_size, pin_memory=True, shuffle=True)
+        elif type_ == "test":
+            # todo 每个客户端的测试集
+            pass
+        else:
+            pass
+            # TODO 验证集
+
         return data_loader
