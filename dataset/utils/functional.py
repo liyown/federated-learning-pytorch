@@ -262,9 +262,6 @@ def client_inner_dirichlet_partition(targets, num_clients, num_classes, dir_alph
     if not isinstance(targets, np.ndarray):
         targets = np.array(targets)
 
-    # rand_perm = np.random.permutation(targets.shape[0])
-    # targets = targets[rand_perm]
-
     class_priors = np.random.dirichlet(alpha=[dir_alpha] * num_classes,
                                        size=num_clients)
     prior_cumsum = np.cumsum(class_priors, axis=1)
@@ -286,7 +283,12 @@ def client_inner_dirichlet_partition(targets, num_clients, num_classes, dir_alph
             curr_class = np.argmax(np.random.uniform() <= curr_prior)
             # Redraw class label if no rest in current class samples
             if class_amount[curr_class] <= 0:
-                continue
+                # Exception handling: If the current class has no samples left, randomly select a non-zero class
+                while True:
+                    new_class = np.random.randint(num_classes)
+                    if class_amount[new_class] > 0:
+                        curr_class = new_class
+                        break
             class_amount[curr_class] -= 1
             client_indices[curr_cid][client_sample_nums[curr_cid]] = idx_list[curr_class][class_amount[curr_class]]
             break
