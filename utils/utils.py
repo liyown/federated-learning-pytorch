@@ -130,16 +130,17 @@ def setupSeed(seed):
     torch.backends.cudnn.deterministic = True
 
 
-if __name__ == '__main__':
-    label = torch.tensor([2, 5, 8, 9])
-    pre = torch.tensor([[0.7082, 0.5335, 0.9494, 0.7792, 0.3288, 0.6303, 0.0335, 0.6918, 0.0778,
-                         0.6404],
-                        [0.3881, 0.8676, 0.7700, 0.6266, 0.8843, 0.8902, 0.4336, 0.5385, 0.8372,
-                         0.1204],
-                        [0.9717, 0.2727, 0.9086, 0.7797, 0.1216, 0.4793, 0.1149, 0.1544, 0.7292,
-                         0.0459],
-                        [0.0424, 0.0809, 0.1597, 0.4177, 0.4798, 0.7107, 0.9683, 0.7502, 0.1536,
-                         0.3994]])
+def movingAverage(data, window_size=2):
+    """Calculate the moving average of the loss and accuracy."""
+    if window_size == 0:
+        return data
+    else:
+        return np.convolve(data, np.ones(window_size), 'valid') / window_size
 
-    c = accuracy(pre, label, [1, 2, 3, 4])
-    print(c)
+
+if __name__ == '__main__':
+    label = torch.arange(0, 10)
+
+    avgLabel = movingAverage(label)
+
+    print(avgLabel)
