@@ -12,8 +12,8 @@ def arg_parse():
     parser = argparse.ArgumentParser()
 
     # global config
-    parser.add_argument("--seed", type=int, default="5959")
-    parser.add_argument("--recordId", type=str, default="encoder_cifar10_dirichlet_100")
+    parser.add_argument("--seed", type=int, default="0925")
+    parser.add_argument("--recordId", type=str, default="encoder_cifar10_dirichlet_1")
 
     # dataset config
     """
@@ -31,7 +31,7 @@ def arg_parse():
     parser.add_argument("--partition", type=str, default="dirichlet", choices=["dirichlet", "iid", "shards"])
     parser.add_argument("--unbalanceSgm", type=int, default=None)
     parser.add_argument("--numShards", type=int, default=None)
-    parser.add_argument("--dirAlpha", type=int, default=1)
+    parser.add_argument("--dirAlpha", type=int, default=0.1)
 
     # client config
     parser.add_argument("--model", type=str, default="CnnWithEncoder",
@@ -42,11 +42,11 @@ def arg_parse():
     parser.add_argument("--localEpochs", type=int, default=5)
     parser.add_argument("--optimizer", type=str, default="torch.optim.Adam",
                         choices=["torch.optim.SGD", "torch.optim.Adam"])
-    parser.add_argument("--optimConfig", type=dict, default={"lr": 0.0002})
+    parser.add_argument("--optimConfig", type=dict, default={"lr": 0.0003})
     # server config
     parser.add_argument("--fraction", type=float, default=0.4)
     parser.add_argument("--numClients", type=int, default=100)
-    parser.add_argument("--numGlobalEpochs", type=int, default=300)
+    parser.add_argument("--numGlobalEpochs", type=int, default=150)
 
     args = parser.parse_args()
     return args
@@ -62,7 +62,7 @@ def run():
                                      path="./clientdata/cifar10", preprocess=False,
                                      balance=configs.balance, partition=configs.partition,
                                      unbalance_sgm=configs.unbalanceSgm, numShards=configs.numShards,
-                                     dirAlpha=configs.dirAlpha, verbose=True, seed=260,
+                                     dirAlpha=configs.dirAlpha, verbose=True, seed=120,
                                      transform=transform, targetTransform=None)
     # draw(dataPartitioner, "./result")
     print("transformer")
@@ -78,13 +78,14 @@ def dataProcess():
         [RandomHorizontalFlip(), ColorJitter(0.5, 0.5), ToTensor(), Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     setupSeed(configs.seed)
     dataPartitioner = PartitionCIFAR(dataName=configs.datasetName, numClients=configs.numClients,
-                                     path="./clientdata/cifar10", download=True, preprocess=False,
+                                     path="./clientdata/cifar10", download=True, preprocess=True,
                                      balance=configs.balance, partition=configs.partition,
                                      unbalance_sgm=configs.unbalanceSgm, numShards=configs.numShards,
                                      dirAlpha=configs.dirAlpha, verbose=True, seed=260,
                                      transform=transform, targetTransform=None)
-    draw(dataPartitioner, "./result")
+    draw(dataPartitioner, "./clientdata/cifar10")
 
 
 if __name__ == '__main__':
+    # dataProcess()
     run()
