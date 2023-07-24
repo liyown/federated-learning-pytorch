@@ -1,20 +1,19 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-
 import numpy as np
 from torch.nn import init
 from tqdm import tqdm
+from models import *
 
 
 class Server(ABC):
     """Abstract class for the server."""
+
     def __init__(self, dataPartitioner, configs):
         """Initialize the server with the given configurations."""
         self.dataPartitioner = dataPartitioner
         self.configs = configs
-        self.globalModel = self.initModelWeights(eval(self.configs.model)(**self.configs.modelConfig),
-                                                 init_type=self.configs.initType,
-                                                 init_gain=self.configs.initSeed)
+        self.globalModel = eval(self.configs.model)(**self.configs.modelConfig)
         self.selectClients = None
         self.allClients = None
 
@@ -77,25 +76,3 @@ class Server(ABC):
         for client in self.selectClients:
             client.model.load_state_dict(self.globalModel.state_dict())
 
-    def initModelWeights(self, model, init_type='normal', init_gain=0.02):
-        """Function for initializing network weights."""
-
-        def init_func(m):
-            class_name = m.__class__.__name__
-            if hasattr(m, 'weight') and (class_name.find('Conv') != -1 or class_name.find('Linear') != -1):
-                if init_type == 'normal':
-                    init.normal_(m.weight.data, 0.0, init_gain)
-                elif init_type == 'xavier':
-                    init.xavier_normal_(m.weight.data, gain=init_gain)
-                elif init_type == 'kaiming':
-                    init.kaiming_normal_(m.weight.data, a=0, mode='fan_in')
-                else:
-                    raise NotImplementedError(f'[ERROR] ...initialization method [{init_type}] is not implemented!')
-                if hasattr(m, 'bias') and m.bias is not None:
-                    init.constant_(m.bias.data, 0.0)
-            elif class_name.find('BatchNorm2d') != -1 or class_name.find('InstanceNorm2d') != -1:
-                init.normal_(m.weight.data, 1.0, init_gain)
-                init.constant_(m.bias.data, 0.0)
-
-        model.apply(init_func)
-        return model

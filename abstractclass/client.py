@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 from collections import Counter
-
-from models.models import *
+import torch
+from models import *
 
 
 class Client(ABC):
     """Abstract class for all clients."""
+
     def __init__(self, clientId, dataPartition, configs):
         """Client object is initiated by the center server."""
         self.configs = configs
@@ -21,6 +22,7 @@ class Client(ABC):
     @abstractmethod
     def learningRateDecay(self):
         """Learning rate decay."""
+
         pass
 
     @abstractmethod

@@ -1,7 +1,9 @@
+import torch
+
 from abstractclass.server import Server
-from models.models import *
 from utils.utils import sendMail, AverageMeter, accuracy
 from .client import FedBatchClient
+from models import *
 
 
 class FedBatchServer(Server):

@@ -104,7 +104,7 @@ class PartitionCIFAR(FedDataset):
             os.mkdir(self.path)
             os.mkdir(os.path.join(self.path, "train"))
             # os.mkdir(os.path.join(self.path, "var"))
-            os.mkdir(os.path.join(self.path, "test"))
+            # os.mkdir(os.path.join(self.path, "test"))
         # train dataset partitioning
         if self.dataName == 'cifar10':
             self.partitioner = CIFAR10Partitioner(self.trainDatasets.targets,

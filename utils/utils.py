@@ -122,6 +122,14 @@ def sendMail(func):
     return wrapper
 
 
+def setupSeed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+
+
 if __name__ == '__main__':
     label = torch.tensor([2, 5, 8, 9])
     pre = torch.tensor([[0.7082, 0.5335, 0.9494, 0.7792, 0.3288, 0.6303, 0.0335, 0.6918, 0.0778,

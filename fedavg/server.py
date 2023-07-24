@@ -1,6 +1,6 @@
+import torch
 from abstractclass.server import Server
 from fedavg.client import FedavgClient
-from models.models import *
 from utils.utils import sendMail, AverageMeter, accuracy
 
 
@@ -31,7 +31,7 @@ class FedavgServer(Server):
         with torch.no_grad():
             for data, labels in self.testDataloader:
                 data, labels = data.float().to(self.configs.device), labels.long().to(self.configs.device)
-                outputs, labels = self.globalModel(data, labels, isTrain=False)
+                outputs = self.globalModel(data)
                 testLoss = torch.nn.CrossEntropyLoss()(outputs, labels).item()
                 lossAndAcc.updateLoss(testLoss, data.size(0))
                 lossAndAcc.updateAcc(accuracy(outputs, labels)[0], labels.size(0))

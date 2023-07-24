@@ -262,8 +262,8 @@ def client_inner_dirichlet_partition(targets, num_clients, num_classes, dir_alph
     if not isinstance(targets, np.ndarray):
         targets = np.array(targets)
 
-    rand_perm = np.random.permutation(targets.shape[0])
-    targets = targets[rand_perm]
+    # rand_perm = np.random.permutation(targets.shape[0])
+    # targets = targets[rand_perm]
 
     class_priors = np.random.dirichlet(alpha=[dir_alpha] * num_classes,
                                        size=num_clients)
@@ -271,8 +271,7 @@ def client_inner_dirichlet_partition(targets, num_clients, num_classes, dir_alph
     idx_list = [np.where(targets == i)[0] for i in range(num_classes)]
     class_amount = [len(idx_list[i]) for i in range(num_classes)]
 
-    client_indices = [np.zeros(client_sample_nums[cid]).astype(np.int64) for cid in
-                      range(num_clients)]
+    client_indices = [np.zeros(client_sample_nums[cid]).astype(np.int64) for cid in range(num_clients)]
 
     while np.sum(client_sample_nums) != 0:
         curr_cid = np.random.randint(num_clients)
@@ -289,9 +288,7 @@ def client_inner_dirichlet_partition(targets, num_clients, num_classes, dir_alph
             if class_amount[curr_class] <= 0:
                 continue
             class_amount[curr_class] -= 1
-            client_indices[curr_cid][client_sample_nums[curr_cid]] = \
-                idx_list[curr_class][class_amount[curr_class]]
-
+            client_indices[curr_cid][client_sample_nums[curr_cid]] = idx_list[curr_class][class_amount[curr_class]]
             break
 
     client_dict = {cid: client_indices[cid] for cid in range(num_clients)}

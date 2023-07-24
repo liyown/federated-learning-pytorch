@@ -1,5 +1,5 @@
+import torch
 from abstractclass.client import Client
-from models.models import *
 from utils.utils import AverageMeter, accuracy
 
 
@@ -9,25 +9,30 @@ class FedavgClient(Client):
         super().__init__(clientId, dataPartition, configs)
 
     def learningRateDecay(self):
-        pass
-        # TODO: add learning rate decay
+        """Learning rate decay."""
+        self.optimizer = eval(self.configs.optimizer)(self.model.parameters(), **self.optimConfig)
+        # for param_group in self.optimizer.param_groups:
+        #     param_group['lr'] *= 0.992
 
     def clientUpdate(self):
         """Update local model using local dataset."""
         self.model.train()
         self.model.to(self.device)
+        self.learningRateDecay()
         for epoch in range(self.localEpoch):
             for data, labels in self.dataLoader:
                 data, labels = data.float().to(self.device), labels.long().to(self.device)
                 self.optimizer.zero_grad()
-                outputs, labels = self.model(data, labels, isTrain=True)
-                loss = self.criterion(outputs, labels)
-                loss.backward()
+                outputs = self.model(data)
+                trainLoss = self.criterion(outputs, labels)
+                trainLoss.backward()
                 self.optimizer.step()
+
+        del self.optimizer
+        self.model.to("cpu")
         # 如果是cuda，清理缓存
         if self.device == "cuda":
             torch.cuda.empty_cache()
-        self.model.to("cpu")
 
     def clientEvaluate(self):
         """Evaluate local model using local dataset (same as training set for convenience)."""
