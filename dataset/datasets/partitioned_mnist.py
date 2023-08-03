@@ -30,36 +30,41 @@ class PartitionedMNIST(FedDataset):
     Args:
         root (str): Path to download raw dataset.
         path (str): Path to save partitioned subdataset.
-        num_clients (int): Number of clients.
+        numClients (int): Number of clients.
         download (bool): Whether to download the raw dataset.
         preprocess (bool): Whether to preprocess the dataset.
         partition (str, optional): Partition name. Only supports ``"noniid-#label"``, ``"noniid-labeldir"``, ``"unbalance"`` and ``"iid"`` partition schemes.
-        dir_alpha (float, optional): Dirichlet distribution parameter for non-iid partition. Only works if ``partition="dirichlet"``. Default as ``None``.
+        dirAlpha (float, optional): Dirichlet distribution parameter for non-iid partition. Only works if ``partition="dirichlet"``. Default as ``None``.
         verbose (bool, optional): Whether to print partition process. Default as ``True``.
         seed (int, optional): Random seed. Default as ``None``.
         transform (callable, optional): A function/transform that takes in an PIL image and returns a transformed version.
-        target_transform (callable, optional): A function/transform that takes in the target and transforms it.
+        targetTransform (callable, optional): A function/transform that takes in the target and transforms it.
     """
 
     def __init__(self,
-                 num_clients,
+                 numClients,
+                 dataName="mnist",
                  root="../data",
                  path="./clientdata",
                  download=True,
                  preprocess=False,
                  partition="iid",
-                 dir_alpha=None,
+                 majorClassesNum=1,
+                 dirAlpha=None,
                  verbose=True,
                  seed=None,
                  transform=None,
-                 target_transform=None) -> None:
+                 targetTransform=None) -> None:
 
+        self.partitioner = None
         self.root = os.path.expanduser(root)
         self.path = path
-        self.num_clients = num_clients
+        self.numClients = numClients
         self.transform = transform
-        self.targetTransform = target_transform
+        self.targetTransform = targetTransform
+        self.dataName = dataName
 
+        # image
         self.trainDatasets = torchvision.datasets.MNIST(root=self.root,
                                                         train=True,
                                                         download=download)
@@ -70,47 +75,42 @@ class PartitionedMNIST(FedDataset):
 
         if preprocess:
             self.preprocess(partition=partition,
-                            dir_alpha=dir_alpha,
+                            major_classes_num=majorClassesNum,
+                            dir_alpha=dirAlpha,
                             verbose=verbose,
-                            seed=seed,
-                            download=download,
-                            transform=transform,
-                            target_transform=target_transform)
+                            seed=seed)
 
     def preprocess(self,
                    partition="iid",
+                   major_classes_num=1,
                    dir_alpha=None,
                    verbose=True,
-                   seed=None,
-                   download=True,
-                   transform=None,
-                   target_transform=None):
+                   seed=None):
         """Perform FL partition on the dataset, and save each subset for each client into ``data{cid}.pkl`` file.
 
         For details of partition schemes, please check `Federated Dataset and DataPartitioner <https://fedlab.readthedocs.io/en/master/tutorials/dataset_partition.html>`_.
         """
-        self.download = download
-
         if os.path.exists(self.path) is not True:
             os.mkdir(self.path)
             os.mkdir(os.path.join(self.path, "train"))
             # os.mkdir(os.path.join(self.path, "var"))
             # os.mkdir(os.path.join(self.path, "test"))
 
-        partitioner = MNISTPartitioner(self.trainDatasets.targets,
-                                       self.num_clients,
-                                       partition=partition,
-                                       dir_alpha=dir_alpha,
-                                       verbose=verbose,
-                                       seed=seed)
+        self.partitioner = MNISTPartitioner(self.trainDatasets.targets,
+                                            self.numClients,
+                                            partition=partition,
+                                            major_classes_num=major_classes_num,
+                                            dir_alpha=dir_alpha,
+                                            verbose=verbose,
+                                            seed=seed)
 
         # partition
         subsets = {
-            cid: Subset(self.trainDatasets.targets,
-                        partitioner.client_dict[cid],
-                        transform=transform,
-                        target_transform=target_transform)
-            for cid in range(self.num_clients)
+            cid: Subset(self.trainDatasets,
+                        self.partitioner.client_dict[cid],
+                        transform=self.transform,
+                        target_transform=self.targetTransform)
+            for cid in range(self.numClients)
         }
         for cid in subsets:
             torch.save(

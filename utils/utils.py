@@ -33,10 +33,10 @@ def seed_torch(seed=3027):
     # torch.backends.cudnn.deterministic = True
 
 
-def draw(PartitionDataset: PartitionCIFAR, root):
+def draw(PartitionDataset, root):
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
     csv_dir = os.path.join(root,
-                           f"{PartitionDataset.dataName}_{PartitionDataset.numClients}_{PartitionDataset.partitioner.partition}_{PartitionDataset.partitioner.balance}.csv")
+                           f"{PartitionDataset.dataName}_{PartitionDataset.numClients}_{PartitionDataset.partitioner.partition}.csv")
     partition_report(PartitionDataset.trainDatasets.targets, PartitionDataset.partitioner.client_dict,
                      class_num=np.unique(PartitionDataset.trainDatasets.targets).shape[0],
                      verbose=False, file=csv_dir)
@@ -47,7 +47,7 @@ def draw(PartitionDataset: PartitionCIFAR, root):
     for col in col_names:
         hetero_dir_part_df[col] = (hetero_dir_part_df[col] * hetero_dir_part_df['Amount']).astype(int)
     plt_dir = os.path.join(root,
-                           f"{PartitionDataset.dataName}_{PartitionDataset.numClients}_{PartitionDataset.partitioner.partition}_{PartitionDataset.partitioner.balance}.png")
+                           f"{PartitionDataset.dataName}_{PartitionDataset.numClients}_{PartitionDataset.partitioner.partition}.png")
     hetero_dir_part_df[col_names].iloc[:10].plot.barh(stacked=True)
     plt.tight_layout()
     plt.xlabel('sample num')
@@ -122,7 +122,7 @@ def sendMail(func):
     return wrapper
 
 
-def setupSeed(seed):
+def setupSeed(seed: int):
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
@@ -130,7 +130,7 @@ def setupSeed(seed):
     torch.backends.cudnn.deterministic = True
 
 
-def movingAverage(data, window_size=2):
+def movingAverage(data, window_size=5):
     """Calculate the moving average of the loss and accuracy."""
     if window_size == 0:
         return data

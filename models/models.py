@@ -7,7 +7,7 @@ from torch import nn
 
 
 class FedAvgCNN(nn.Module):
-    def __init__(self, dataset: str = "cifar10"):
+    def __init__(self, dataset: str = "mnist"):
         super(FedAvgCNN, self).__init__()
         config = {
             "mnist": (1, 1024, 10),
@@ -94,8 +94,7 @@ class CnnWithEncoder(nn.Module):
         self.feature = self.net.features
         self.classifier = self.net.classifier
         self.featureRefer = None
-        self.encoderLayer = nn.TransformerEncoderLayer(d_model=feature_dim, nhead=4, dim_feedforward=feature_dim,
-                                                       dropout=1)
+        self.encoderLayer = nn.TransformerEncoderLayer(d_model=feature_dim, nhead=8, dim_feedforward=feature_dim, dropout=1)
         self.setRefer()
 
     def batchFormer(self, x):
@@ -111,16 +110,17 @@ class CnnWithEncoder(nn.Module):
         if not isTrain:
             x = self.feature(x)
             x = self.flatten(x)
+            x = self.batchFormer(x)
             x = self.classifier(x)
             return x, y
         self.setRefer()
-        x_l, x_g = self.feature(x), self.featureRefer(x)
-        x_l, x_g = self.flatten(x_l), self.flatten(x_g)
-        x_l_g = torch.cat([x_l, x_g], dim=0)
+        x_l, x_r = self.feature(x), self.featureRefer(x)
+        x_l, x_r = self.flatten(x_l), self.flatten(x_r)
+        x_l_g = torch.cat([x_l, x_r], dim=0)
         xe_l_g = self.batchFormer(x_l_g)
-        xe_l_g_l = torch.cat([xe_l_g, x_l_g], dim=0)
-        y = torch.cat([y, y, y, y], dim=0)
-        x = self.classifier(xe_l_g_l)
+        # xe_l_g_l = torch.cat([xe_l_g, x_l_g], dim=0)
+        y = torch.cat([y, y], dim=0)
+        x = self.classifier(xe_l_g)
         return x, y
 
 
@@ -146,3 +146,15 @@ class CnnWithFusion(nn.Module):
         x = self.flatten(x)
         x = self.classifier(x)
         return x, y
+
+
+if __name__ == '__main__':
+    cc = CnnWithEncoder(backbone='FedAvgCNN')
+
+    bb = CnnWithEncoder(backbone='FedAvgCNN')
+
+    bb = cc.load_state_dict(bb.state_dict())
+
+    bb.classifier = None
+
+    print(cc.classifier)

@@ -46,7 +46,7 @@ class Subset(Dataset):
     def __init__(self, dataset, indices, transform=None, target_transform=None):
         self.data = []
         for idx in indices:
-            self.data.append(dataset.data[idx])
+            self.data.append(dataset[idx][0])
 
         if not isinstance(dataset.targets, np.ndarray):
             dataset.targets = np.array(dataset.targets)

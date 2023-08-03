@@ -7,7 +7,7 @@ from utils.utils import sendMail, AverageMeter, accuracy
 class FedavgServer(Server):
     def __init__(self, dataPartitioner, configs):
         super(FedavgServer, self).__init__(dataPartitioner, configs)
-        self.testDataloader = self.dataPartitioner.getDataloader(cid=None, batch_size=32, type_="test")
+        self.testDataloader = self.dataPartitioner.getDataloader(cid=None, type_="test")
         self.createClients(dataPartitioner, configs)
 
     @sendMail
