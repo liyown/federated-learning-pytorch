@@ -18,6 +18,7 @@ import torch
 import torchvision
 from torch.utils.data import DataLoader
 
+from utils.utils import find_project_root, draw
 from .basic_dataset import FedDataset, Subset
 from dataset.utils.partition import MNISTPartitioner
 
@@ -44,10 +45,9 @@ class PartitionedMNIST(FedDataset):
     def __init__(self,
                  numClients,
                  dataName="mnist",
-                 root="../data",
+                 root=os.path.join(find_project_root(), "data"),
                  path="./clientdata",
                  download=True,
-                 preprocess=False,
                  partition="iid",
                  majorClassesNum=1,
                  dirAlpha=None,
@@ -73,7 +73,7 @@ class PartitionedMNIST(FedDataset):
                                                        target_transform=self.targetTransform,
                                                        download=download)
 
-        if preprocess:
+        if os.path.exists(self.path) is not True:
             self.preprocess(partition=partition,
                             major_classes_num=majorClassesNum,
                             dir_alpha=dirAlpha,
@@ -90,11 +90,11 @@ class PartitionedMNIST(FedDataset):
 
         For details of partition schemes, please check `Federated Dataset and DataPartitioner <https://fedlab.readthedocs.io/en/master/tutorials/dataset_partition.html>`_.
         """
-        if os.path.exists(self.path) is not True:
-            os.mkdir(self.path)
-            os.mkdir(os.path.join(self.path, "train"))
-            # os.mkdir(os.path.join(self.path, "var"))
-            # os.mkdir(os.path.join(self.path, "test"))
+
+        os.makedirs(self.path)
+        os.makedirs(os.path.join(self.path, "train"))
+        # os.mkdir(os.path.join(self.path, "var"))
+        # os.mkdir(os.path.join(self.path, "test"))
 
         self.partitioner = MNISTPartitioner(self.trainDatasets.targets,
                                             self.numClients,

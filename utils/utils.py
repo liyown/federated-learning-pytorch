@@ -138,6 +138,22 @@ def movingAverage(data, window_size=5):
         return np.convolve(data, np.ones(window_size), 'valid') / window_size
 
 
+def find_project_root():
+    current_dir = os.path.abspath(os.getcwd())
+    while True:
+        # Check if current directory contains project configuration file
+        if os.path.exists(os.path.join(current_dir, 'setup.py')):
+            return current_dir
+        # Check if current directory contains specific project folder
+        if os.path.exists(os.path.join(current_dir, 'src')):
+            return current_dir
+        # Check if current directory contains specific project folder
+        if os.path.exists(os.path.join(current_dir, 'readme.md')):
+            return current_dir
+        # Move up one directory
+        current_dir = os.path.dirname(current_dir)
+
+
 if __name__ == '__main__':
     label = torch.arange(0, 10)
 
