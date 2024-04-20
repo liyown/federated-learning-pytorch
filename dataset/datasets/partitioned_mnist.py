@@ -47,6 +47,7 @@ class PartitionedMNIST(FedDataset):
                  dataName="mnist",
                  root=os.path.join(find_project_root(), "data"),
                  path="./clientdata",
+                 data_preprocessed=False,
                  download=True,
                  partition="iid",
                  majorClassesNum=1,
@@ -73,7 +74,7 @@ class PartitionedMNIST(FedDataset):
                                                        target_transform=self.targetTransform,
                                                        download=download)
 
-        if os.path.exists(self.path) is not True:
+        if data_preprocessed:
             self.preprocess(partition=partition,
                             major_classes_num=majorClassesNum,
                             dir_alpha=dirAlpha,
@@ -90,11 +91,11 @@ class PartitionedMNIST(FedDataset):
 
         For details of partition schemes, please check `Federated Dataset and DataPartitioner <https://fedlab.readthedocs.io/en/master/tutorials/dataset_partition.html>`_.
         """
-
-        os.makedirs(self.path)
-        os.makedirs(os.path.join(self.path, "train"))
-        # os.mkdir(os.path.join(self.path, "var"))
-        # os.mkdir(os.path.join(self.path, "test"))
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
+            os.makedirs(os.path.join(self.path, "train"))
+            # os.mkdir(os.path.join(self.path, "var"))
+            # os.mkdir(os.path.join(self.path, "test"))
 
         self.partitioner = MNISTPartitioner(self.trainDatasets.targets,
                                             self.numClients,
@@ -117,19 +118,23 @@ class PartitionedMNIST(FedDataset):
                 subsets[cid],
                 os.path.join(self.path, "train", "data{}.pkl".format(cid)))
 
-    def getDataset(self, cid, type_="train"):
+    def getDataset(self, cid=None, type_="train"):
         """Load subdataset for client with client ID ``cid`` from local file.
 
         Args:
              cid (int): client id
-             type (str, optional): Dataset type, can be ``"train"``, ``"val"`` or ``"test"``. Default as ``"train"``.
+             type_ (str, optional): Dataset type, can be ``"train"``, ``"val"`` or ``"test"``. Default as ``"train"``.
 
         Returns:
             Dataset
         """
-        dataset = None
+        if cid is None:
+            if type_ == "test":
+                return self.testDatasets
+            elif type_ == "train":
+                return self.trainDatasets
         if type_ == "train":
-            dataset = torch.load(os.path.join(self.path, type_, "data{}.pkl".format(cid)))
+            return torch.load(os.path.join(self.path, type_, "data{}.pkl".format(cid)))
         elif type_ == "test":
             # todo 每个客户端的测试集
             pass
@@ -137,7 +142,6 @@ class PartitionedMNIST(FedDataset):
             pass
             # TODO 验证集
 
-        return dataset
 
     def getDataloader(self, cid=None, batch_size=None, type_="train"):
         """Return dataload for client with client ID ``cid``.

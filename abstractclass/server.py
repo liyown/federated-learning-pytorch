@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
+from multiprocessing import Pool
+
 import numpy as np
-from torch.nn import init
 from tqdm import tqdm
 from models import *
 
@@ -16,6 +17,9 @@ class Server(ABC):
         self.globalModel = eval(self.configs.model)(**self.configs.modelConfig)
         self.selectClients = None
         self.allClients = None
+        if self.configs.multiProcess:
+            self.pool = Pool(self.configs.numProcess)
+
 
     @abstractmethod
     def train(self):
@@ -63,6 +67,20 @@ class Server(ABC):
             selectedTotalSize += len(client)
         return selectedTotalSize
 
+    def updateSelectedClientsMutiPprocess(self):
+        """ muti-process version of updateSelectedClients"""
+        selectedTotalSize = 0
+        results = []
+        model_state_dicts = []
+        for client in self.selectClients:
+            results.append(self.pool.apply_async(client.clientUpdateMultiProcess))
+        for result in tqdm(sorted(results, key=lambda x: x.get()[1]), desc="Client update multi-process"):
+            model_state_dicts.append(result.get()[0])
+        for i, client in enumerate(self.selectClients):
+            client.model.load_state_dict(model_state_dicts[i])
+            selectedTotalSize += len(client)
+        return selectedTotalSize
+
     def selectClient(self):
         """Select clients to participate in the current global training round."""
         numSampledClients = max(int(self.configs.fraction * self.configs.numClients), 1)
@@ -70,6 +88,7 @@ class Server(ABC):
             np.random.choice(a=[i for i in range(self.configs.numClients)], size=numSampledClients,
                              replace=False).tolist())
         self.selectClients = [self.allClients[i] for i in sampledClientIndices]
+
 
     def transmitModel(self):
         """Send the updated global model to selected/all clients."""

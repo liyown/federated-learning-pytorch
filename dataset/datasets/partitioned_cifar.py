@@ -18,6 +18,7 @@ import torch
 import torchvision
 from torch.utils.data import DataLoader
 
+from utils.utils import find_project_root
 from .basic_dataset import FedDataset, CIFARSubset
 from dataset.utils.partition import CIFAR10Partitioner, CIFAR100Partitioner
 
@@ -26,7 +27,7 @@ class PartitionCIFAR(FedDataset):
     """:class:`FedDataset` with partitioning preprocess. For detailed partitioning, please
     check `Federated Dataset and DataPartitioner <https://fedlab.readthedocs.io/en/master/tutorials/dataset_partition.html>`_.
 
-    
+
     Args:
         root (str): Path to download raw dataset.
         path (str): Path to save partitioned subdataset.
@@ -48,8 +49,9 @@ class PartitionCIFAR(FedDataset):
     def __init__(self,
                  dataName,
                  numClients,
-                 root=os.path.join(os.path.expanduser("~"), "data"),
+                 root=os.path.join(find_project_root(), "data"),
                  path="./clientdata",
+                 preprocess = False,
                  download=True,
                  balance=True,
                  partition="iid",
@@ -76,7 +78,7 @@ class PartitionCIFAR(FedDataset):
                                                          target_transform=self.targetTransform,
                                                          download=download)
 
-        if os.path.exists(self.path) is not True:
+        if preprocess is True:
             self.preprocess(balance=balance,
                             partition=partition,
                             unbalance_sgm=unbalance_sgm,
@@ -99,10 +101,11 @@ class PartitionCIFAR(FedDataset):
 
         For details of partition schemes, please check `Federated Dataset and DataPartitioner <https://fedlab.readthedocs.io/en/master/tutorials/dataset_partition.html>`_.
         """
-        os.makedirs(self.path)
-        os.makedirs(os.path.join(self.path, "train"))
-        # os.mkdir(os.path.join(self.path, "var"))
-        # os.mkdir(os.path.join(self.path, "test"))
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
+            os.makedirs(os.path.join(self.path, "train"))
+            # os.mkdir(os.path.join(self.path, "var"))
+            # os.mkdir(os.path.join(self.path, "test"))
         # train dataset partitioning
         if self.dataName == 'cifar10':
             self.partitioner = CIFAR10Partitioner(self.trainDatasets.targets,
@@ -141,7 +144,7 @@ class PartitionCIFAR(FedDataset):
                 subsets[cid],
                 os.path.join(self.path, "train", "data{}.pkl".format(cid)))
 
-    def getDataset(self, cid, type_="train"):
+    def getDataset(self, cid=None, type_="train"):
         """Load sub-dataset for client with client ID ``cid`` from local file.
         Args:
              cid (int): client id
@@ -149,7 +152,8 @@ class PartitionCIFAR(FedDataset):
         Returns:
             Dataset
         """
-        dataset = None
+        if cid is None:
+            return self.trainDatasets if type_ == "train" else self.testDatasets
         if type_ == "train":
             dataset = torch.load(os.path.join(self.path, type_, "data{}.pkl".format(cid)))
         elif type_ == "test":
@@ -167,6 +171,8 @@ class PartitionCIFAR(FedDataset):
             cid (int): client id
             batch_size (int, optional): batch size in DataLoader.
             type_ (str, optional): Dataset type, can be ``"train"``, ``"val"`` or ``"test"``. Default as ``"train"``.
+        Returns:
+            DataLoader or None
         """
         data_loader = None
         # 返回整体训练与测试集

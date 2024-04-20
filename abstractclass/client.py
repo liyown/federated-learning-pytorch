@@ -37,7 +37,7 @@ class Client(ABC):
 
     def __len__(self):
         """Return a total size of the client's local data."""
-        return len(self.dataLoader) * self.dataLoader.batch_size
+        return len(self.dataLoader.dataset)
 
     def dataDistribute(self):
         # 统计每个标签的数量

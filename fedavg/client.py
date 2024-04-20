@@ -28,11 +28,31 @@ class FedavgClient(Client):
                 trainLoss.backward()
                 self.optimizer.step()
 
-        del self.optimizer
         self.model.to("cpu")
         # 如果是cuda，清理缓存
         if self.device == "cuda":
             torch.cuda.empty_cache()
+
+    def clientUpdateMultiProcess(self):
+        """Update local model using local dataset with multi-process."""
+        self.model.train()
+        self.model.to(self.device)
+        self.learningRateDecay()
+        for epoch in range(self.localEpoch):
+            for data, labels in self.dataLoader:
+                data, labels = data.float().to(self.device), labels.long().to(self.device)
+                self.optimizer.zero_grad()
+                outputs = self.model(data)
+                trainLoss = self.criterion(outputs, labels)
+                trainLoss.backward()
+                self.optimizer.step()
+
+        self.model.to("cpu")
+        # 如果是cuda，清理缓存
+        if self.device == "cuda":
+            torch.cuda.empty_cache()
+        # 注意 state_dict()之前要先to("cpu"),否者进程结束后获取到的值是空的
+        return self.model.state_dict(), self.id
 
     def clientEvaluate(self):
         """Evaluate local model using local dataset (same as training set for convenience)."""

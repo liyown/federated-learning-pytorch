@@ -6,8 +6,6 @@ import pandas as pd
 import torch
 import yagmail
 from matplotlib import pyplot as plt
-
-from dataset.datasets.partitioned_cifar import PartitionCIFAR
 from dataset.utils.functional import partition_report
 
 
@@ -35,6 +33,8 @@ def seed_torch(seed=3027):
 
 def draw(PartitionDataset, root):
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+    if not os.path.exists(root):
+        os.makedirs(root)
     csv_dir = os.path.join(root,
                            f"{PartitionDataset.dataName}_{PartitionDataset.numClients}_{PartitionDataset.partitioner.partition}.csv")
     partition_report(PartitionDataset.trainDatasets.targets, PartitionDataset.partitioner.client_dict,

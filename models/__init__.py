@@ -1,3 +1,3 @@
-from .models import FedAvgCNN, CnnWithBatch, CnnWithEncoder, CnnWithFusion
+from .models import FedAvgCNN, CnnWithFusion, CnnWithBatchFormer
 
-__all__ = ['FedAvgCNN', 'CnnWithBatch', 'CnnWithEncoder', 'CnnWithFusion']
+__all__ = ['FedAvgCNN', 'CnnWithFusion', 'CnnWithBatchFormer']
