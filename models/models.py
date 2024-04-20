@@ -102,6 +102,8 @@ class BatchFormer(nn.Module):
 
         self.softmax = nn.Softmax(dim=-1)
 
+        self.lambda1 = nn.Parameter(torch.tensor(0.1))
+
         self.fla = nn.Flatten()
 
     def forward(self, x_local, x_global):
@@ -124,9 +126,10 @@ class BatchFormer(nn.Module):
 
         attention_feature = torch.matmul(attention, x_global.view(x_global.size(0), -1)).view(x_global.size())
 
-        x_local = self.v(x_local)
+        out = self.lambda1 * self.v(attention_feature) + (1 - self.lambda1) * self.v(x_local)
 
-        return 0.9*x_local + 0.1*attention_feature
+
+        return out
 
 if __name__ == '__main__':
     pass
