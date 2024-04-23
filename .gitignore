@@ -1,9 +1,7 @@
 *.pyc
 data/
-result/
+results/
 .idea/
 
 fedavg/clientdata
-fedavg/result
-fedtransfermer/clientdata/
-fedtransfermer/result/
+fedavg/results

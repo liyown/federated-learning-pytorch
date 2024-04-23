@@ -38,82 +38,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plotMutiResultsWithErrors(results: dict, xlabel, ylabel, filename, hline_y=None):
-    """
-    Plot the results with error lines and filled error bands.
-    :param results: the results dict
-        shape: (id, numResults, numEpochs)
-    :param label: id of results
-    :param xlabel: the label of x-axis
-    :param ylabel: the label of y-axis
-    :param filename: the filename of the figure
-    :param hline_y: the y-value for a horizontal line (optional)
-    :return: None
-    """
-    plt.figure(figsize=(10, 5))
-    markers = ['o', 's', '^', 'D']  # You can customize the marker styles here
-
-    for index, (key, value) in enumerate(results.items()):
-        means = np.mean(value, axis=0)
-        stds = np.std(value, axis=0)
-        marker = markers[index % len(markers)]
-        plt.plot(np.arange(len(means)), means, label=key, marker=marker, markevery=10)
-        plt.fill_between(np.arange(len(means)), means - stds, means + stds, alpha=0.3)
-
-    if hline_y is not None:
-        plt.axhline(y=hline_y, color='gray', linestyle='--')
-
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.legend()
-    plt.savefig(filename, dpi=300)
-    plt.show()
-
-
-def plotResultsWithErrors(results, xlabel, ylabel, filename, hline_y=None):
-    """
-    Plot the results with error lines and filled error bands.
-    :param results: the results
-        shape: (numResults, numEpochs)
-    :param xlabel: the label of x-axis
-    :param ylabel: the label of y-axis
-    :param filename: the filename of the figure
-    :param hline_y: the y-value for a horizontal line (optional)
-    :return: None
-    """
-    # 设置分辨率
-    plt.figure(figsize=(10, 5))
-
-    num_results = len(results)
-    num_epochs = len(results[0])
-
-    # 计算每个数据点的平均值
-    means = np.mean(results, axis=0)
-
-    # 计算每个数据点的标准差
-    stds = np.std(results, axis=0)
-
-    # 绘制平均值的折线
-    plt.plot(np.arange(num_epochs), means, label='Mean', marker='o')
-
-    # 绘制误差线
-    # for i in range(num_epochs):
-    #     plt.plot([i, i], [means[i] - stds[i], means[i] + stds[i]], color='black')
-
-    # 填充误差范围的颜色
-    plt.fill_between(np.arange(num_epochs), means - stds, means + stds, alpha=0.3)
-
-    if hline_y is not None:
-        plt.axhline(y=hline_y, color='gray', linestyle='--')
-
-    # 添加标题
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.legend()
-    plt.savefig(filename, dpi=300)
-    plt.show()
-
-
 def plotResults(results, labels, xlabel, ylabel, filename, hline_y=None):
     """
     Plot the results with custom markers.
@@ -183,7 +107,7 @@ class MyPicture:
         Initialize the MyPicture class.
         """
         self.data = None
-        self.dir_path =  dir_path
+        self.dir_path = dir_path
         # 读取路径下所有的csv文件，按照文件名分类
         self.save_path = os.path.join(dir_path, "pictures")
         self.init()
@@ -215,7 +139,7 @@ class MyPicture:
                 data[key][column].append(dataFrame[column].values)
         self.data = data
 
-    def plot_single(self, keys: List[str]):
+    def plot_single(self, keys: List[str], isFillError: bool = True):
         """
         Plot a single figure.
         """
@@ -225,11 +149,15 @@ class MyPicture:
                 if column == "epoch":
                     continue
                 if column == "similarity":
-                    plotResultsWithErrors(results[column], "epoch", column,
-                                          '\\\\?\\' + os.path.abspath(os.path.join(self.save_path, f"{key}_{column}.png")), hline_y=1)
-                plotResultsWithErrors(results[column], "epoch", column, '\\\\?\\' + os.path.abspath(os.path.join(self.save_path, f"{key}_{column}.png")))
+                    self.plotResultsWithErrors(results[column], "epoch", column,
+                                               '\\\\?\\' + os.path.abspath(
+                                                   os.path.join(self.save_path, f"{key}_{column}:{isFillError}.png")),
+                                               hline_y=1, isFillError=isFillError)
+                self.plotResultsWithErrors(results[column], "epoch",
+                                           column, '\\\\?\\' + os.path.abspath(
+                        os.path.join(self.save_path, f"{key}_{column}:{isFillError}.png")), isFillError=isFillError)
 
-    def plot_compare(self, keys: List[str], columns: str):
+    def plot_compare(self, keys: List[str], alias: List[str], columns: str, isFillError: bool = True):
         """
         Plot the comparison figure for a single column.
         """
@@ -246,11 +174,16 @@ class MyPicture:
 
         for column in results.keys():
             if column == "similarity":
-                plotMutiResultsWithErrors(results[column], "epoch", column,
-                                          '\\\\?\\' + os.path.abspath(os.path.join(self.save_path, f"{keys}_{column}_compare.png")), hline_y=1)
-            plotMutiResultsWithErrors(results[column], "epoch", column, '\\\\?\\' + os.path.abspath(os.path.join(self.save_path, f"{keys}_{column}_compare.png")))
+                self.plotMutiResultsWithErrors(results[column], alias, "epoch", column,
+                                               '\\\\?\\' + os.path.abspath(
+                                                   os.path.join(self.save_path, f"{alias}_{column}:{isFillError}_compare.png")),
+                                               hline_y=1, isFillError=isFillError)
+            self.plotMutiResultsWithErrors(results[column], alias, "epoch", column,
+                                           '\\\\?\\' + os.path.abspath(
+                                               os.path.join(self.save_path, f"{alias}_{column}:{isFillError}_compare.png")),
+                                           isFillError=isFillError)
 
-    def plot_compare_all(self, keys: List[str]):
+    def plot_compare_all(self, keys: List[str], alias: List[str] = None, isFillError: bool = True):
         """
         Plot the comparison figure for all columns.
         """
@@ -266,9 +199,13 @@ class MyPicture:
 
         for column in results.keys():
             if column == "similarity":
-                plotMutiResultsWithErrors(results[column], "epoch", column,
-                                          '\\\\?\\' + os.path.abspath(os.path.join(self.save_path, f"{keys}_{column}_compare.png")), hline_y=1)
-            plotMutiResultsWithErrors(results[column], "epoch", column, '\\\\?\\' + os.path.abspath(os.path.join(self.save_path, f"{keys}_{column}_compare.png")))
+                self.plotMutiResultsWithErrors(results[column], alias, "epoch", column,
+                                               '\\\\?\\' + os.path.abspath(
+                                                   os.path.join(self.save_path, f"{keys}_{column}:{isFillError}_compare.png")),
+                                               hline_y=1)
+            self.plotMutiResultsWithErrors(results[column], alias, "epoch",
+                                           column, '\\\\?\\' + os.path.abspath(
+                    os.path.join(self.save_path, f"{keys}_{column}:{isFillError}_compare.png")))
 
     def plot_all(self):
         """
@@ -278,5 +215,120 @@ class MyPicture:
         self.plot_single(self.data.keys())
         self.plot_compare_all(self.data.keys())
 
+    @staticmethod
+    def plotResultsWithErrors(results: List[List[int]], xlabel: str, ylabel: str, filename: str, hline_y: int = None, isFillError: bool = True):
+        """
+        Plot the results with error lines and filled error bands.
+        :param results: a column of results, represented as a list of multiple experiments
+            Example1:
+            [[1, 2, 3],
+            [2, 3, 4],
+            [3, 4, 5]]
+        :param xlabel: the label of x-axis
+        :param ylabel: the label of y-axis
+        :param filename: the filename of the figure
+        :param hline_y: the y-value for a horizontal line (optional)
+        :return: None
+        """
+        # 设置分辨率
+        plt.figure(figsize=(10, 5))
 
+        num_epochs = len(results[0])
 
+        # 计算每个数据点的平均值
+        means = np.mean(np.array(results), axis=0)
+
+        # 计算每个数据点的标准差
+        stds = np.std(np.array(results), axis=0)
+
+        # 绘制平均值的折线
+        plt.plot(np.arange(num_epochs), means, label='Mean', marker='o')
+
+        # 绘制误差线
+        # for i in range(num_epochs):
+        #     plt.plot([i, i], [means[i] - stds[i], means[i] + stds[i]], color='black')
+        if isFillError:
+            # 填充误差范围的颜色
+            plt.fill_between(np.arange(num_epochs), means - stds, means + stds, alpha=0.3)
+
+        if hline_y is not None:
+            plt.axhline(y=hline_y, color='gray', linestyle='--')
+
+        # 添加标题
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.legend()
+        plt.savefig(filename, dpi=300)
+        plt.show()
+
+    @staticmethod
+    def plotMutiResultsWithErrors(results: dict, alias: List[str], xlabel, ylabel, filename, hline_y=None,
+                                  isFillError: bool = True):
+        """
+        Plot the results with error lines and filled error bands.
+        :param results: a dict of results, each key-value pair represents an experiment
+            Example1:
+            {
+                "FedAvg": [[1, 2, 3],
+                           [2, 3, 4],
+                           [3, 4, 5]],
+                "FedAvg2": [[1, 2, 3],
+                            [2, 3, 4],
+                            [3, 4, 5]]
+            }
+        :param alias: the alias of the results
+        :param xlabel: the label of x-axis
+        :param ylabel: the label of y-axis
+        :param filename: the filename of the figure
+        :param hline_y: the y-value for a horizontal line (optional)
+        :return: None
+        """
+        plt.figure(figsize=(10, 5))
+        markers = ['o', 's', '^', 'D']  # You can customize the marker styles here
+        line = ['-', '--', '-.', ':']
+
+        style = [{"marker": "", "line": "-"},  # 实线无点
+                 {"marker": "^", "line": "--"},  # 实线方块
+                 {"marker": "^", "line": ":"},  # 实线三角
+                 {"marker": "^", "line": "-."},  # 实线菱形
+                 {"marker": "x", "line": "--"},
+                 {"marker": "x", "line": ":"},
+                 {"marker": "x", "line": "-."},
+                 {"marker": "o", "line": "--"},
+                 {"marker": "o", "line": ":"},
+                 {"marker": "o", "line": "-."},
+                 {"marker": "D", "line": "--"},
+                 {"marker": "D", "line": ":"},
+                 {"marker": "D", "line": "-."},
+                 {"marker": "s", "line": "--"},
+                 {"marker": "s", "line": ":"},
+                 {"marker": "s", "line": "-."}]
+
+        for index, (alia, (key, value)) in enumerate(zip(alias, results.items())):
+            style_index = index % len(style)
+
+            # 计算每个数据点的平均值
+            means = np.mean(value, axis=0)
+
+            # 计算每个数据点的标准差
+            stds = np.std(value, axis=0)
+
+            # 绘制平均值的折线
+            plt.plot(np.arange(len(means)), means, label=alia, marker=style[style_index]["marker"],
+                     linestyle=style[style_index]["line"])
+
+            # 绘制误差线
+            # for i in range(len(means)):
+            #     plt.plot([i, i], [means[i] - stds[i], means[i] + stds[i]], color='black')
+            if isFillError:
+                # 填充误差范围的颜色
+                plt.fill_between(np.arange(len(means)), means - stds, means + stds, alpha=0.3)
+
+        if hline_y is not None:
+            plt.axhline(y=hline_y, color='gray', linestyle='--')
+
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.legend()
+        plt.savefig(filename, dpi=300)
+        plt.show()
