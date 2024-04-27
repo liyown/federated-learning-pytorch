@@ -151,11 +151,11 @@ class MyPicture:
                 if column == "similarity":
                     self.plotResultsWithErrors(results[column], "epoch", column,
                                                '\\\\?\\' + os.path.abspath(
-                                                   os.path.join(self.save_path, f"{key}_{column}:{isFillError}.png")),
+                                                   os.path.join(self.save_path, f"{key}_{column}.{isFillError}.png")),
                                                hline_y=1, isFillError=isFillError)
                 self.plotResultsWithErrors(results[column], "epoch",
                                            column, '\\\\?\\' + os.path.abspath(
-                        os.path.join(self.save_path, f"{key}_{column}:{isFillError}.png")), isFillError=isFillError)
+                        os.path.join(self.save_path, f"{key}_{column}.{isFillError}.png")), isFillError=isFillError)
 
     def plot_compare(self, keys: List[str], alias: List[str], columns: str, isFillError: bool = True):
         """
@@ -176,11 +176,11 @@ class MyPicture:
             if column == "similarity":
                 self.plotMutiResultsWithErrors(results[column], alias, "epoch", column,
                                                '\\\\?\\' + os.path.abspath(
-                                                   os.path.join(self.save_path, f"{alias}_{column}:{isFillError}_compare.png")),
+                                                   os.path.join(self.save_path, f"{alias}_{column}.{isFillError}_compare.png")),
                                                hline_y=1, isFillError=isFillError)
             self.plotMutiResultsWithErrors(results[column], alias, "epoch", column,
                                            '\\\\?\\' + os.path.abspath(
-                                               os.path.join(self.save_path, f"{alias}_{column}:{isFillError}_compare.png")),
+                                               os.path.join(self.save_path, f"{alias}_{column}.{isFillError}_compare.png")),
                                            isFillError=isFillError)
 
     def plot_compare_all(self, keys: List[str], alias: List[str] = None, isFillError: bool = True):
@@ -201,11 +201,11 @@ class MyPicture:
             if column == "similarity":
                 self.plotMutiResultsWithErrors(results[column], alias, "epoch", column,
                                                '\\\\?\\' + os.path.abspath(
-                                                   os.path.join(self.save_path, f"{keys}_{column}:{isFillError}_compare.png")),
+                                                   os.path.join(self.save_path, f"{alias}_{column}.{isFillError}_compare.png")),
                                                hline_y=1)
             self.plotMutiResultsWithErrors(results[column], alias, "epoch",
                                            column, '\\\\?\\' + os.path.abspath(
-                    os.path.join(self.save_path, f"{keys}_{column}:{isFillError}_compare.png")))
+                    os.path.join(self.save_path, f"{alias}_{column}.{isFillError}_compare.png")))
 
     def plot_all(self):
         """
