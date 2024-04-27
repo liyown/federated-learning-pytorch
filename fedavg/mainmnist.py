@@ -63,7 +63,8 @@ def run(configs, data_preprocessed=False):
     if data_preprocessed:
         draw(dataPartitioner, "./clientdata/mnsit/datainfo")
 
-    print("avg")
+    print(f"Trains information: {configs.model} on {configs.datasetName} with {configs.partition} partition.")
+
     federatedServer = FedavgServer(dataPartitioner, configs)
 
     results = federatedServer.train()

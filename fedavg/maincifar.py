@@ -69,7 +69,7 @@ def run(configs, preprocess=False):
     if preprocess is True:
         draw(dataPartitioner, "./clientdata/cifar10/datainfo")
 
-    print(configs.recordId)
+    print(f"Trains information: {configs.model} on {configs.datasetName} with {configs.partition} partition.")
     federatedServer = FedavgServer(dataPartitioner, configs)
     results = federatedServer.train()
 
